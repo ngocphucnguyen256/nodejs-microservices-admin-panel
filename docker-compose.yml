@@ -31,12 +31,12 @@ services:
     ports:
       - "7200:3306"
 
-  phpmyadmin:
-    image: phpmyadmin/phpmyadmin
-    ports:
-      - "7300:80"
-    volumes:
-      - ./phpmyadmin/config.user.inc.php:/etc/phpmyadmin/config.user.inc.php
+  # phpmyadmin:
+  #   image: phpmyadmin/phpmyadmin
+  #   ports:
+  #     - "7300:80"
+  #   volumes:
+  #     - ./phpmyadmin/config.user.inc.php:/etc/phpmyadmin/config.user.inc.php
 
   users-service:
     build:

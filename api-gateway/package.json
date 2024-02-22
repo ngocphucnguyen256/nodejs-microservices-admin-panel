@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "license": "MIT",
   "scripts": {
-    "watch": "ts-node-dev --respawn index.dev.ts"
+    "watch": "ts-node-dev --respawn --poll index.dev.ts"
   },
   "devDependencies": {
     "@types/node": "^18.13.0",
