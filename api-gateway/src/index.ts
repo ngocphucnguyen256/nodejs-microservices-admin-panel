@@ -1,1 +1,3 @@
-console.log("🚗 Hello from Job API Gateway!!!!!!!");
+import startServer from "./server/startServer";
+
+startServer();
