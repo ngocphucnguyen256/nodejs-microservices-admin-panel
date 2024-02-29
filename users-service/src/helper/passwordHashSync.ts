@@ -1,6 +1,6 @@
 import bcrypt from "bcryptjs";
 
 const passwordHashSync = (password : string) =>
-  bcrypt.hashSync(password, 10);
+  bcrypt.hashSync(password, bcrypt.genSaltSync(12));
 
 export default passwordHashSync;

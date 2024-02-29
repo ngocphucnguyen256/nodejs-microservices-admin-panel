@@ -1,8 +1,8 @@
 import { Express } from "express";
 import dayjs from "dayjs";
+import omit from "lodash.omit";
 
 import dataSource from "../db/data-source";
-
 import User from "../db/entities/User";
 import UserSession from "../db/entities/UserSession";
 
@@ -15,6 +15,7 @@ const setupRoutes = (app: Express) => {
   const userRepository = dataSource.getRepository(User);
   const userSessionRepository = dataSource.getRepository(UserSession);
 
+  //login - create session
   app.post("/sessions", async (req, res, next) => {
     if (!req.body.username || !req.body.password) {
       return next(new Error("Invalid body!"));
@@ -51,7 +52,39 @@ const setupRoutes = (app: Express) => {
     }
   });
 
+  //logout - delete session
+  app.delete("/sessions/:sessionId", async (req, res, next) => {
+    try {
+      const userSession = await userSessionRepository.findOneBy({
+        id: req.params.sessionId,
+      });
 
+      if (!userSession) return next(new Error("Invalid session ID"));
+
+      await userSessionRepository.remove(userSession);
+
+      return res.end();
+    } catch (err) {
+      return next(err);
+    }
+  });
+
+  //Current session info
+  app.get("/sessions/:sessionId", async (req, res, next) => {
+    try {
+      const userSession = await userSessionRepository.findOneBy({
+        id: req.params.sessionId,
+      });
+
+      if (!userSession) return next(new Error("Invalid session ID"));
+
+      return res.json(userSession);
+    } catch (err) {
+      return next(err);
+    }
+  });
+
+  //Create user
   app.post("/users", async (req, res, next) => {
     if (!req.body.username || !req.body.password) {
       return next(new Error("Invalid body!"));
@@ -74,12 +107,13 @@ const setupRoutes = (app: Express) => {
 
       await userRepository.save([user]);
 
-      return res.json(user);
+      return res.json(omit(user, ["passwordHash"]));
     } catch (err) {
       return next(err);
     }
   });
 
+  //Get user info
   app.get("/users/:userId", async (req, res, next) => {
     try {
       const user = await userRepository.findOneBy({

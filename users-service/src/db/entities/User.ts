@@ -6,6 +6,7 @@ export default class User {
   id: string;
 
   @Column()
+  @Column({ unique: true })
   username: string;
 
   @Column({ select: false })
