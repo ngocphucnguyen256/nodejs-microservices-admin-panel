@@ -1,0 +1,2 @@
+PORT = 7000
+USERS_SERVICE_URL = http://users-service:7101

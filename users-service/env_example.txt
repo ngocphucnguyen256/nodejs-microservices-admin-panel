@@ -1,1 +1,9 @@
-USER_SERVICE_DB_URL = 'mysql://root:password@users-service-db/db'
+USER_SERVICE_DB_HOST = 'users-service-db'
+USER_SERVICE_DB_PORT = '3306'
+USER_SERVICE_DB_USER = 'root'
+USER_SERVICE_DB_PASSWORD = 'password'
+USER_SERVICE_DB_NAME = 'db'
+
+
+
+USER_SESSION_EXPIRY_HOURS = 1
