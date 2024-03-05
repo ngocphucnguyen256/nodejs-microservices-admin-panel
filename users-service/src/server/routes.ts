@@ -59,7 +59,7 @@ const setupRoutes = (app: Express) => {
         id: req.params.sessionId,
       });
 
-      if (!userSession) return next(new Error("Invalid session ID"));
+      if (!userSession) return res.status(404).end();
 
       await userSessionRepository.remove(userSession);
 
@@ -76,7 +76,7 @@ const setupRoutes = (app: Express) => {
         id: req.params.sessionId,
       });
 
-      if (!userSession) return next(new Error("Invalid session ID"));
+      if (!userSession) return res.status(404).end();
 
       return res.json(userSession);
     } catch (err) {

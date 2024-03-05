@@ -43,7 +43,9 @@ export default class UsersService {
 
   static async fetchUserSession({ sessionId }: { sessionId: string }) {
     try {
-      const body = <UserSession>await got.get(`${USERS_SERVICE_URI}/sessions/${sessionId}`).json();
+      const body = <UserSession>await got.get(`${USERS_SERVICE_URI}/sessions/${sessionId}`).json().catch((error) => {
+        if(error.response.statusCode === 404) return null;
+      });
       if (!body) return null;
       return body;
     } catch (error : any) {
