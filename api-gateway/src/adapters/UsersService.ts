@@ -63,4 +63,9 @@ export default class UsersService {
       throw error;
     }
   }
+
+  static async deleteUserSession({ sessionId }: { sessionId: string }) {
+    const body = await got.delete(`${USERS_SERVICE_URI}/sessions/${sessionId}`).json();
+    return body;
+  }
 }
