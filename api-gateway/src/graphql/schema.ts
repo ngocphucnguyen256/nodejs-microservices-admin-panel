@@ -1,6 +1,4 @@
-import { gql } from "apollo-server";
-
-const schema = gql`
+const schema = /* GraphQL */ `
   scalar Date
   type User {
     username: ID!
@@ -17,6 +15,15 @@ const schema = gql`
     createUser(username: String!, password: String!): User!
     createUserSession(username: String!, password: String!): UserSession!
     deleteUserSession(sessionId: ID!): Boolean!
+    sendMessage(sender: String!, content: String!): Message
+  }
+  type Subscription {
+    messageReceived: Message
+  },
+  type Message {
+    id: ID!
+    sender: String!
+    content: String!
   }
 `;
 
