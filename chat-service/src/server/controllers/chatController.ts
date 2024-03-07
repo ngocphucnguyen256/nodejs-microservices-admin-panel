@@ -1,15 +1,12 @@
 import { Request, Response } from 'express'
 
 import dayjs from 'dayjs'
-import omit from 'lodash.omit'
-
 import dataSource from '../../db/data-source'
 import User from '../../db/entities/User'
 import Message from '../../db/entities/Message'
 import ChatRoom from '../../db/entities/ChatRoom'
 
 import generateUUID from '../../helper/generateUUID'
-import accessEnv from '../../helper/accessEnv'
 
 const userRepository = dataSource.getRepository(User)
 const messageRepository = dataSource.getRepository(Message)
@@ -33,11 +30,6 @@ export const listChatRooms = async (req: Request, res: Response) => {
 
 export const sendMessage = async (req: Request, res: Response) => {
   // Logic to send a message
-  const senderId = req.body.senderId
-  const userExists = await userRepository.findOneBy({ id: senderId })
-  if (!userExists) {
-    return res.status(404).json({ message: 'User not found' })
-  }
   let message = new Message()
   message.id = generateUUID()
   message.sender = req.body.senderId

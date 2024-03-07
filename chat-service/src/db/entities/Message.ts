@@ -1,4 +1,12 @@
-import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, ManyToOne, JoinColumn } from 'typeorm'
+import {
+  Column,
+  CreateDateColumn,
+  UpdateDateColumn,
+  Entity,
+  PrimaryGeneratedColumn,
+  ManyToOne,
+  JoinColumn
+} from 'typeorm'
 import User from './User'
 import ChatRoom from './ChatRoom'
 
@@ -32,6 +40,9 @@ export default class Message {
 
   @Column('text')
   content: string
+
+  @UpdateDateColumn()
+  updatedAt: string
 
   @CreateDateColumn()
   createdAt: string
