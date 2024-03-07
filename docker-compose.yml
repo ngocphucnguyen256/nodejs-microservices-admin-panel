@@ -1,13 +1,16 @@
-version: "3"
+version: "3.4"
 services:
   api-gateway:
     build:
       context: "."
       dockerfile: "./api-gateway/Dockerfile"
     depends_on:
-      - chat-service
-      - users-service
-      - rabbitmq
+      rabbitmq:
+        condition: service_healthy
+      chat-service: 
+        condition: "service_started"
+      users-service:
+        condition: "service_started"
     ports:
       - "7000:7000"
     volumes:
@@ -35,6 +38,11 @@ services:
 
   rabbitmq:
     image: "rabbitmq:3-management"
+    healthcheck:
+      test: ["CMD", "rabbitmqctl", "status"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     ports:
       - "15672:15672"  # Management interface
       - "5672:5672"    # RabbitMQ server
@@ -58,7 +66,6 @@ services:
       dockerfile: "./users-service/Dockerfile"
     depends_on:
       - users-service-db
-      - rabbitmq
     ports:
       - "7101:7101"
     volumes:

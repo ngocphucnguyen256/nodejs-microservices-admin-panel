@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 
-import UsersService from "../routes/UsersService";
+import UsersService from "../services/UsersService";
 
 const injectSession = async (req: Request, res: Response, next: NextFunction) => {
   if (req.cookies.userSessionId) {

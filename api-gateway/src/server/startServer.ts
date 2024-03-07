@@ -5,6 +5,7 @@ import express from "express";
 import amqplib, { Channel, Connection } from 'amqplib'
 
 import injectSession from "./middleware/injectSession";
+import setupRoutes from "./routes";
 
 import accessEnv from "../helper/accessEnv";
 
@@ -37,6 +38,8 @@ const startServer = () => {
     }
   }
   connect()
+
+  setupRoutes(app);
 
   app.use(injectSession);
 
