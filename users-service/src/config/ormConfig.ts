@@ -1,8 +1,7 @@
-import { DataSourceOptions } from 'typeorm';
-import User from '../db/entities/User';
-import UserSession from '../db/entities/UserSession';
-import accessEnv from '../helper/accessEnv';
-
+import { DataSourceOptions } from 'typeorm'
+import User from '../db/entities/User'
+import UserSession from '../db/entities/UserSession'
+import accessEnv from '../helper/accessEnv'
 
 const ormConfig: DataSourceOptions = {
   type: 'mysql', // Type of the database
@@ -13,7 +12,7 @@ const ormConfig: DataSourceOptions = {
   database: accessEnv('USER_SERVICE_DB_NAME', 'db'), // Database name
   entities: [User, UserSession], // Entities to be loaded for this connection
   synchronize: true, // Synchronize the database state with the entity definitions on startup
-  logging: false, // Enable logging
-};
+  logging: false // Enable logging
+}
 
-export default ormConfig;
+export default ormConfig

@@ -1,16 +1,16 @@
-import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn } from 'typeorm'
 
-@Entity("userSessions")
+@Entity('userSessions')
 export default class UserSession {
-  @PrimaryGeneratedColumn("uuid")
-  id: string;
+  @PrimaryGeneratedColumn('uuid')
+  id: string
 
-  @Column("char", { length: 36 })
-  userId: string;
+  @Column('char', { length: 36 })
+  userId: string
 
   @CreateDateColumn()
-  createdAt: string;
+  createdAt: string
 
-  @Column("datetime")
-  expiresAt: string;
+  @Column('datetime')
+  expiresAt: string
 }
