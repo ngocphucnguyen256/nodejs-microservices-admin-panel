@@ -7,6 +7,7 @@ services:
     depends_on:
       - chat-service
       - users-service
+      - rabbitmq
     ports:
       - "7000:7000"
     volumes:
@@ -18,6 +19,7 @@ services:
       dockerfile: "./chat-service/Dockerfile"
     depends_on:
       - chat-service-db
+      - rabbitmq
     ports:
       - "7100:7100"
     volumes:
@@ -30,6 +32,18 @@ services:
     image: mysql:5.7.20
     ports:
       - "7200:3306"
+
+  rabbitmq:
+    image: "rabbitmq:3-management"
+    ports:
+      - "15672:15672"  # Management interface
+      - "5672:5672"    # RabbitMQ server
+    environment:
+      RABBITMQ_DEFAULT_USER: "user"
+      RABBITMQ_DEFAULT_PASS: "password"
+    volumes:
+      - "./rabbitmq/data:/var/lib/rabbitmq"
+      - "./rabbitmq/log:/var/log/rabbitmq"
 
   # phpmyadmin:
   #   image: phpmyadmin/phpmyadmin
@@ -44,6 +58,7 @@ services:
       dockerfile: "./users-service/Dockerfile"
     depends_on:
       - users-service-db
+      - rabbitmq
     ports:
       - "7101:7101"
     volumes:

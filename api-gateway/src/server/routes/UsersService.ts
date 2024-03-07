@@ -1,5 +1,5 @@
 import got from "got";
-import accessEnv from "../helper/accessEnv";
+import accessEnv from "../../helper/accessEnv";
 
 const USERS_SERVICE_URI = accessEnv("USERS_SERVICE_URL", "http://users-service:7101");
 
