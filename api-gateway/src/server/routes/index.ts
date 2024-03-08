@@ -1,10 +1,11 @@
 import { Express } from 'express'
-import UsersRoutes from './UsersRoutes'
-import ChatRoutes from './ChatRoutes'
+import proxy from 'express-http-proxy'
+
+import accessEnv from '../../helper/accessEnv'
 
 const setupRoutes = (app: Express) => {
-  UsersRoutes(app, '/api/v1/users-service')
-  ChatRoutes(app, '/api/v1/chat-service')
+  app.use('/user', proxy(accessEnv('CUSTOMER_API_URL', 'http://users-service:7101')))
+  app.use('/chat', proxy(accessEnv('CHAT_SERVICE_URL', 'http://chat-service:7100')))
 }
 
 export default setupRoutes
