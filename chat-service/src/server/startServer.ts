@@ -2,7 +2,7 @@ import bodyParser from 'body-parser'
 import cors from 'cors'
 import express, { NextFunction, Request, Response } from 'express'
 
-import accessEnv from '../helper/accessEnv'
+import accessEnv from '../utils/accessEnv'
 
 import setupRoutes from './routes'
 

@@ -1,13 +1,6 @@
-import {
-  Column,
-  CreateDateColumn,
-  Entity,
-  PrimaryGeneratedColumn,
-  ManyToMany,
-  JoinTable,
-  UpdateDateColumn
-} from 'typeorm'
-import User from './User'
+import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, OneToMany, UpdateDateColumn } from 'typeorm'
+
+import ChatRoomUser from './ChatRoomUser'
 
 @Entity('chat_rooms')
 export default class ChatRoom {
@@ -17,19 +10,8 @@ export default class ChatRoom {
   @Column('text')
   name: string
 
-  @ManyToMany(() => User)
-  @JoinTable({
-    name: 'chat_room_users', // Table name for the join table
-    joinColumn: {
-      name: 'chat_room_id',
-      referencedColumnName: 'id'
-    },
-    inverseJoinColumn: {
-      name: 'user_id',
-      referencedColumnName: 'id'
-    }
-  })
-  users: User[]
+  @OneToMany(() => ChatRoomUser, (chatRoomUser: ChatRoomUser) => chatRoomUser.chatRoomId)
+  chatRoomUsers: ChatRoomUser[]
 
   @UpdateDateColumn()
   updatedAt: string

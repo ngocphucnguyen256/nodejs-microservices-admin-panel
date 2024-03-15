@@ -3,7 +3,7 @@ import User from '../db/entities/User'
 import Message from '../db/entities/Message'
 import ChatRoom from '../db/entities/ChatRoom'
 
-import accessEnv from '../helper/accessEnv'
+import accessEnv from '../utils/accessEnv'
 
 const ormConfig: DataSourceOptions = {
   type: 'mysql', // Type of the database

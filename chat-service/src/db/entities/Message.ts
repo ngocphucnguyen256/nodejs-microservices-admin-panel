@@ -7,7 +7,6 @@ import {
   ManyToOne,
   JoinColumn
 } from 'typeorm'
-import User from './User'
 import ChatRoom from './ChatRoom'
 
 export enum MessagesStatus {
@@ -30,9 +29,8 @@ export default class Message {
   })
   status: MessagesStatus
 
-  @ManyToOne(() => User)
-  @JoinColumn({ name: 'senderId' })
-  sender: User
+  @Column('uuid')
+  senderId: string
 
   @ManyToOne(() => ChatRoom)
   @JoinColumn({ name: 'chatRoomId' })

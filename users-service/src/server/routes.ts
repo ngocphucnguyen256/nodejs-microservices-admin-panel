@@ -4,19 +4,15 @@ import omit from 'lodash.omit'
 
 import dataSource from '../db/data-source'
 import User from '../db/entities/User'
-import UserSession from '../db/entities/UserSession'
 
-import generateUUID from '../helper/generateUUID'
-import passwordCompareSync from '../helper/passwordCompareSync'
-import passwordHashSync from '../helper/passwordHashSync'
-import accessEnv from '../helper/accessEnv'
+import { generateUUID, passwordCompareSync, passwordHashSync, accessEnv, checkData, GenerateSignature } from '../utils'
+import { UserAuth } from './middlewares/UserAuth'
 
 const setupRoutes = (app: Express) => {
   const userRepository = dataSource.getRepository(User)
-  const userSessionRepository = dataSource.getRepository(UserSession)
 
-  //login - create session
-  app.post('/sessions', async (req, res, next) => {
+  //login
+  app.post('/login', async (req, res, next) => {
     if (!req.body.username || !req.body.password) {
       return next(new Error('Invalid body!'))
     }
@@ -34,60 +30,16 @@ const setupRoutes = (app: Express) => {
         return next(new Error('Invalid password!'))
       }
 
-      const expiresAt = dayjs()
-        .add(parseInt(accessEnv('USER_SESSION_EXPIRY_HOURS', '1')), 'hour')
-        .toISOString()
-
-      const sessionToken = generateUUID()
-
-      const userSession = {
-        expiresAt,
-        id: sessionToken,
-        userId: user.id
-      }
-
-      await userSessionRepository.save([userSession])
-
-      return res.json(userSession)
-    } catch (err) {
-      return next(err)
-    }
-  })
-
-  //logout - delete session
-  app.delete('/sessions/:sessionId', async (req, res, next) => {
-    try {
-      const userSession = await userSessionRepository.findOneBy({
-        id: req.params.sessionId
-      })
-
-      if (!userSession) return res.status(404).end()
-
-      await userSessionRepository.remove(userSession)
-
-      return res.end()
-    } catch (err) {
-      return next(err)
-    }
-  })
-
-  //Current session info
-  app.get('/sessions/:sessionId', async (req, res, next) => {
-    try {
-      const userSession = await userSessionRepository.findOneBy({
-        id: req.params.sessionId
-      })
-
-      if (!userSession) return res.status(404).end()
-
-      return res.json(userSession)
+      //pass checks
+      const token = await GenerateSignature({ username: user.username, _id: user.id })
+      return res.json(checkData({ id: user.id, token }))
     } catch (err) {
       return next(err)
     }
   })
 
   //Create user
-  app.post('/users', async (req, res, next) => {
+  app.post('/signup', async (req, res, next) => {
     if (!req.body.username || !req.body.password) {
       return next(new Error('Invalid body!'))
     }
@@ -114,7 +66,7 @@ const setupRoutes = (app: Express) => {
   })
 
   //Get user info
-  app.get('/users/:userId', async (req, res, next) => {
+  app.get('/users/:userId', UserAuth, async (req, res, next) => {
     try {
       const user = await userRepository.findOneBy({
         id: req.params.userId
