@@ -11,9 +11,28 @@ import { UserAuth } from './middlewares/UserAuth'
 const setupRoutes = (app: Express) => {
   const userRepository = dataSource.getRepository(User)
 
+  const user = {
+    id: generateUUID(),
+    passwordHash: passwordHashSync('password'),
+    username: 'admin',
+    email: 'admin@admin.com'
+  }
+
+  const userCheck =
+    userRepository.findOneBy({
+      username: 'admin'
+    }) ||
+    userRepository.findOneBy({
+      email: 'admin@admin.com'
+    })
+
+  if (!userCheck) {
+    userRepository.save([user])
+  }
+
   //login
   app.post('/login', async (req, res, next) => {
-    if (!req.body.username || !req.body.password) {
+    if ((!req.body.username && !req.body.email) || !req.body.password) {
       return next(new Error('Invalid body!'))
     }
 
@@ -22,6 +41,7 @@ const setupRoutes = (app: Express) => {
         .createQueryBuilder('user')
         .addSelect('user.passwordHash')
         .where('user.username = :username', { username: req.body.username })
+        .orWhere('user.email = :email', { email: req.body.email })
         .getOne()
 
       if (!user) return next(new Error('Invalid username!'))
@@ -40,21 +60,26 @@ const setupRoutes = (app: Express) => {
 
   //Create user
   app.post('/signup', async (req, res, next) => {
-    if (!req.body.username || !req.body.password) {
+    if ((!req.body.username && !req.body.email) || !req.body.password) {
       return next(new Error('Invalid body!'))
     }
 
     try {
-      const userCheck = await userRepository.findOneBy({
-        username: req.body.username
-      })
+      const userCheck =
+        (await userRepository.findOneBy({
+          username: req.body.username
+        })) ||
+        (await userRepository.findOneBy({
+          email: req.body.email
+        }))
 
-      if (userCheck) return next(new Error('Username already existed!'))
+      if (userCheck) return next(new Error('Username or email already existed!'))
 
       const user = {
         id: generateUUID(),
         passwordHash: passwordHashSync(req.body.password),
-        username: req.body.username
+        username: req.body.username ? req.body.username : req.body.email,
+        email: req.body.email ? req.body.email : ''
       }
 
       await userRepository.save([user])

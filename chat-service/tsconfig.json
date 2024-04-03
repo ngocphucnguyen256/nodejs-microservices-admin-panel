@@ -8,8 +8,9 @@
       "skipLibCheck": true,
       "strict": true,
       "strictPropertyInitialization": false,
+      "typeRoots": ["src/@types", "node_modules/@types"],
       "target": "es5",
-      "types": ["node"]
+      "types": ["node"],
     },
     "include": ["src/**/*.ts"],
   }

@@ -5,6 +5,7 @@
 import 'dotenv/config'
 import { v4 as uuidv4 } from 'uuid'
 import jwt from 'jsonwebtoken'
+import { NextFunction, Request, Response } from 'express'
 
 const cache: { [key: string]: string } = {}
 
@@ -33,14 +34,13 @@ export const GenerateSignature = async (payload: any) => {
   }
 }
 
-export const ValidateSignature = async (req: any) => {
+export const ValidateSignature = async (req: Request) => {
   try {
     const JWT_SECRET = accessEnv('JWT_SECRET', 'my_secret_key')
     const signature = req.get('Authorization')
     if (!signature) return false
-    console.log(signature)
     const payload = await jwt.verify(signature.split(' ')[1], JWT_SECRET)
-    req.user = payload
+    req.user = payload as any
     return true
   } catch (error) {
     console.log(error)

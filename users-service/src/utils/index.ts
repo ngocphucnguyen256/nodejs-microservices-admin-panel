@@ -43,6 +43,7 @@ export const ValidateSignature = async (req: any) => {
   try {
     const JWT_SECRET = accessEnv('JWT_SECRET', 'my_secret_key')
     const signature = req.get('Authorization')
+    console.log(signature)
     if (!signature) return false
     console.log(signature)
     const payload = await jwt.verify(signature.split(' ')[1], JWT_SECRET)

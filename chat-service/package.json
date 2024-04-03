@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "license": "MIT",
   "scripts": {
-    "watch": "ts-node-dev --respawn --poll index.dev.ts",
+    "watch": "ts-node-dev --respawn --poll --files index.dev.ts",
     "db:migrate": "ts-node ./node_modules/typeorm/cli.js migration:run -d src/db/data-source.ts",
     "migration:generate": "ts-node ./node_modules/typeorm/cli.js migration:generate -d src/db/data-source.ts -o src/db/migrations",
     "db:migrate:undo": "ts-node ./node_modules/typeorm/cli.js migration:revert -d src/db/data-source.ts",

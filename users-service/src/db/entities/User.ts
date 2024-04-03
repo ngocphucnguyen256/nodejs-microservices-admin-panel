@@ -12,6 +12,9 @@ export default class User {
   @Column({ select: false })
   passwordHash: string
 
+  @Column({ unique: true })
+  email: string
+
   @CreateDateColumn()
   createdAt: string
 }

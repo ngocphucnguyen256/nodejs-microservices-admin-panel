@@ -27,11 +27,23 @@ export const listChatRooms = async (req: Request, res: Response) => {
 }
 
 export const sendMessage = async (req: Request, res: Response) => {
+  const reqUser = req.user
+  if (!reqUser) {
+    return res.status(401).json({ message: 'Unauthorized' })
+  }
+
+  // Fetch the ChatRoom entity using the provided chatRoomId
+  const chatRoom = await chatRoomRepository.findOneBy({
+    id: req.body.chatRoomId
+  })
+  if (!chatRoom) {
+    return res.status(404).json({ message: 'Chat room not found' })
+  }
   // Logic to send a message
   let message = new Message()
   message.id = generateUUID()
-  message.chatRoom = req.body.chatRoomId
-  message.senderId = req.user.id
+  message.chatRoom = chatRoom
+  message.senderId = reqUser._id
   message.content = req.body.content
   message.createdAt = dayjs().format('YYYY-MM-DD HH:mm:ss')
   message = await messageRepository.save(message)
