@@ -4,11 +4,13 @@ import dayjs from 'dayjs'
 import dataSource from '../../db/data-source'
 import Message from '../../db/entities/Message'
 import ChatRoom from '../../db/entities/ChatRoom'
+import ChatRepository from '../repository/chatRepository'
 
 import { generateUUID } from '../../utils'
 
 const messageRepository = dataSource.getRepository(Message)
 const chatRoomRepository = dataSource.getRepository(ChatRoom)
+const chatRepository = new ChatRepository()
 
 export const createChatRoom = async (req: Request, res: Response) => {
   const reqUser = req.user
@@ -39,14 +41,7 @@ export const sendMessage = async (req: Request, res: Response) => {
   if (!chatRoom) {
     return res.status(404).json({ message: 'Chat room not found' })
   }
-  // Logic to send a message
-  let message = new Message()
-  message.id = generateUUID()
-  message.chatRoom = chatRoom
-  message.senderId = reqUser._id
-  message.content = req.body.content
-  message.createdAt = dayjs().format('YYYY-MM-DD HH:mm:ss')
-  message = await messageRepository.save(message)
+  const message = await chatRepository.saveMessage(chatRoom, reqUser._id, req.body.content)
   return res.json(message)
 }
 
