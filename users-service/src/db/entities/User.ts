@@ -17,4 +17,7 @@ export default class User {
 
   @CreateDateColumn()
   createdAt: string
+
+  @Column({ type: 'blob', nullable: true })
+  avatar: Buffer
 }
