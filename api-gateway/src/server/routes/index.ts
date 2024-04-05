@@ -1,11 +1,35 @@
 import { Express } from 'express'
-import proxy from 'express-http-proxy'
+import { createProxyMiddleware } from 'http-proxy-middleware'
 
 import accessEnv from '../../helper/accessEnv'
 
 const setupRoutes = (app: Express) => {
-  app.use('/api/user', proxy(accessEnv('CUSTOMER_API_URL', 'http://users-service:7101')))
-  app.use('/api/chat', proxy(accessEnv('CHAT_SERVICE_URL', 'http://chat-service:7100')))
+  // Regular HTTP proxy
+  app.use(
+    '/api/user',
+    createProxyMiddleware({
+      target: accessEnv('USERS_SERVICE_URL', 'http://users-service:7101'),
+      changeOrigin: true
+    })
+  )
+
+  // WebSocket proxy for the chat service
+  app.use(
+    '/api/ws/chat',
+    createProxyMiddleware({
+      target: accessEnv('CHAT_SERVICE_WS_URL', 'ws://chat-service:7100'),
+      ws: true, // This enables WebSocket proxy
+      changeOrigin: true
+    })
+  )
+
+  app.use(
+    '/api/chat',
+    createProxyMiddleware({
+      target: accessEnv('CHAT_SERVICE_URL', 'http://chat-service:7100'),
+      changeOrigin: true
+    })
+  )
 }
 
 export default setupRoutes

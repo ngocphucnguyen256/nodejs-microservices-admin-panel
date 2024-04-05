@@ -15,10 +15,17 @@ const startServer = () => {
 
   app.use(bodyParser.json())
 
+  // app.use(
+  //   cors({
+  //     origin: (origin, cb) => cb(null, true),
+  //     credentials: true
+  //   })
+  // )
+
   app.use(
     cors({
-      origin: (origin, cb) => cb(null, true),
-      credentials: true
+      origin: '*', // Allow all origins
+      credentials: true // Accept credentials (cookies, authentication, etc.) from the request
     })
   )
 

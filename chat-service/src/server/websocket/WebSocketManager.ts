@@ -76,6 +76,10 @@ class WebSocketManager {
           }
         })
       })
+
+      ws.on('error', (err) => {
+        console.log('error', err)
+      })
     })
   }
 }

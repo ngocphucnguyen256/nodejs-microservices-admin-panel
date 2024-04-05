@@ -1,4 +1,4 @@
-import cookieParser from 'cookie-parser'
+// import cookieParser from 'cookie-parser'
 import cors from 'cors'
 import express from 'express'
 import setupRoutes from './routes'
@@ -8,15 +8,14 @@ const PORT = parseInt(accessEnv('PORT', '7000'))
 
 const startServer = () => {
   const app = express()
-  app.use(express.json())
-  app.use(cookieParser())
+  // app.use(express.json())
+  // app.use(cookieParser())
   app.use(
     cors({
-      credentials: true,
-      origin: (origin, cb) => cb(null, true)
+      origin: '*', // Allow all origins
+      credentials: true // Accept credentials (cookies, authentication, etc.) from the request
     })
   )
-
   setupRoutes(app)
 
   app.listen(PORT, '0.0.0.0', () => {

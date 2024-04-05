@@ -1,3 +1,5 @@
 PORT = 7000
 AMQP_SERVER = amqp://user:password@rabbitmq:5672
 USERS_SERVICE_URL = http://users-service:7101
+CHAT_SERVICE_URL = http://chat-service:7100
+CHAT_SERVICE_WS_URL = ws://chat-service:7100

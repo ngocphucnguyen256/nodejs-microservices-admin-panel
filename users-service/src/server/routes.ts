@@ -11,27 +11,9 @@ import { UserAuth } from './middlewares/UserAuth'
 const setupRoutes = (app: Express) => {
   const userRepository = dataSource.getRepository(User)
 
-  const user = {
-    id: generateUUID(),
-    passwordHash: passwordHashSync('password'),
-    username: 'admin',
-    email: 'admin@admin.com'
-  }
-
-  const userCheck =
-    userRepository.findOneBy({
-      username: 'admin'
-    }) ||
-    userRepository.findOneBy({
-      email: 'admin@admin.com'
-    })
-
-  if (!userCheck) {
-    userRepository.save([user])
-  }
-
   //login
   app.post('/login', async (req, res, next) => {
+    console.log('received login request')
     if ((!req.body.username && !req.body.email) || !req.body.password) {
       return next(new Error('Invalid body!'))
     }
@@ -40,7 +22,7 @@ const setupRoutes = (app: Express) => {
       const user = await userRepository
         .createQueryBuilder('user')
         .addSelect('user.passwordHash')
-        .where('user.username = :username', { username: req.body.username })
+        .where('user.username = :username', { username: req.body.username || req.body.email })
         .orWhere('user.email = :email', { email: req.body.email })
         .getOne()
 
