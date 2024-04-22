@@ -1,6 +1,7 @@
 import dataSource from '../../db/data-source'
 import Message from '../../db/entities/Message'
 import ChatRoom from '../../db/entities/ChatRoom'
+import User from '../../db/entities/User'
 import { Repository, DataSource } from 'typeorm'
 import { generateUUID } from '../../utils'
 import dayjs from 'dayjs'
@@ -28,7 +29,11 @@ export default class ChatRepository {
     } else {
       message.chatRoom = chatRoom
     }
-    message.senderId = senderId
+    const sender = await this.dataSource.getRepository(User).findOneBy({ id: senderId })
+    if (!sender) {
+      throw new Error('Sender not found')
+    }
+    message.user = sender
     message.content = content
     message.createdAt = dayjs().format('YYYY-MM-DD HH:mm:ss')
     message = await this.messageRepository.save(message)

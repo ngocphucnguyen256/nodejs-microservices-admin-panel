@@ -1,21 +1,20 @@
-import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, OneToMany, UpdateDateColumn } from 'typeorm'
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, OneToMany } from 'typeorm'
+import Message from './Message'
 
-import ChatRoomUser from './ChatRoomUser'
-
-@Entity('chat_rooms')
+@Entity()
 export default class ChatRoom {
-  @PrimaryGeneratedColumn('uuid')
+  @PrimaryGeneratedColumn()
   id: string
 
-  @Column('text')
+  @Column()
   name: string
 
-  @OneToMany(() => ChatRoomUser, (chatRoomUser: ChatRoomUser) => chatRoomUser.chatRoomId)
-  chatRoomUsers: ChatRoomUser[]
-
-  @UpdateDateColumn()
-  updatedAt: string
+  @OneToMany(() => Message, (message) => message.chatRoom)
+  messages: Message[]
 
   @CreateDateColumn()
-  createdAt: string
+  createdAt: Date
+
+  @UpdateDateColumn()
+  updatedAt: Date
 }

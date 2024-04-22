@@ -8,6 +8,7 @@ import {
   JoinColumn
 } from 'typeorm'
 import ChatRoom from './ChatRoom'
+import User from './User'
 
 export enum MessagesStatus {
   SENT = 'sent',
@@ -17,9 +18,9 @@ export enum MessagesStatus {
   DELETED = 'deleted'
 }
 
-@Entity('messages')
+@Entity()
 export default class Message {
-  @PrimaryGeneratedColumn('uuid')
+  @PrimaryGeneratedColumn()
   id: string
 
   @Column({
@@ -29,11 +30,10 @@ export default class Message {
   })
   status: MessagesStatus
 
-  @Column('uuid')
-  senderId: string
+  @ManyToOne(() => User)
+  user: User
 
-  @ManyToOne(() => ChatRoom)
-  @JoinColumn({ name: 'chatRoomId' })
+  @ManyToOne(() => ChatRoom, (chatRoom: ChatRoom) => chatRoom.messages)
   chatRoom: ChatRoom
 
   @Column('text')

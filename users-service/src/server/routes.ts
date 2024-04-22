@@ -1,9 +1,10 @@
 import { Express } from 'express'
 import { UserAuth } from './middlewares/UserAuth'
 import UserController from './controllers/UserController'
+import { Channel } from 'amqplib'
 
-const setupRoutes = (app: Express) => {
-  const userController = new UserController()
+const setupRoutes = (app: Express, channel: Channel) => {
+  const userController = new UserController(channel)
 
   //login
   app.post('/login', async (req, res, next) => {

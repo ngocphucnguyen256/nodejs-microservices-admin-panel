@@ -1,12 +1,15 @@
 import { Express } from 'express'
-import { createChatRoom, listChatRooms, sendMessage, listMessages } from './controllers/chatController'
+import ChatController from './controllers/chatController'
 import { UserAuth } from './middlewares/UserAuth'
+import { Channel } from 'amqplib'
 
-const setupRoutes = (app: Express) => {
-  app.post('/chat-rooms', UserAuth, createChatRoom)
-  app.get('/chat-rooms', listChatRooms)
-  app.post('/messages', UserAuth, sendMessage)
-  app.get('/chat-rooms/:id/messages', listMessages)
+const setupRoutes = (app: Express, channel: Channel) => {
+  const chatController = new ChatController(channel)
+
+  app.post('/chat-rooms', UserAuth, chatController.createChatRoom)
+  app.get('/chat-rooms', UserAuth, chatController.listChatRooms)
+  app.post('/messages', UserAuth, chatController.sendMessage)
+  app.get('/chat-rooms/:id/messages', UserAuth, chatController.listMessages)
 }
 
 export default setupRoutes

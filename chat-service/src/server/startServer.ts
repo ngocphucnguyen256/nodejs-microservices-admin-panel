@@ -3,13 +3,13 @@ import cors from 'cors'
 import express, { NextFunction, Request, Response } from 'express'
 import { createServer } from 'http'
 import WebSocketManager from './websocket/WebSocketManager'
-import { accessEnv } from '../utils'
+import { accessEnv, CreateChannel } from '../utils'
 
 import setupRoutes from './routes'
 
 const PORT = parseInt(accessEnv('PORT', '7100'), 10)
 
-const startServer = () => {
+const startServer = async () => {
   const app = express()
   const server = createServer(app)
 
@@ -29,7 +29,9 @@ const startServer = () => {
     })
   )
 
-  setupRoutes(app)
+  const channel = await CreateChannel()
+
+  setupRoutes(app, channel)
 
   app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
     return res.status(500).json({ message: err.message })

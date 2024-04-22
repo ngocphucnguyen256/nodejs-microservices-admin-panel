@@ -1,14 +1,18 @@
-import { Entity, PrimaryColumn, Column } from 'typeorm'
+import { Entity, PrimaryColumn, PrimaryGeneratedColumn, Column, ManyToOne } from 'typeorm'
+import ChatRoom from './ChatRoom'
+import User from './User'
 
-@Entity('chat_room_users')
+@Entity()
 export default class ChatRoomUser {
-  @PrimaryColumn()
-  chatRoomId: string
+  @PrimaryGeneratedColumn()
+  id: string
 
-  @PrimaryColumn()
-  userId: string // Assuming user IDs are UUIDs or strings
-
-  // Additional fields like joinedAt can be added here
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   joinedAt: Date
+
+  @ManyToOne(() => ChatRoom)
+  chatRoom: ChatRoom
+
+  @ManyToOne(() => User)
+  user: User
 }

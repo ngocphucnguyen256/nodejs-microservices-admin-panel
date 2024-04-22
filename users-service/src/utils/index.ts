@@ -6,6 +6,7 @@ import 'dotenv/config'
 import { v4 as uuidv4 } from 'uuid'
 import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
+import amqplib, { Channel, Connection } from 'amqplib'
 
 const cache: { [key: string]: string } = {}
 
@@ -61,4 +62,47 @@ export const checkData = (data: any) => {
   } else {
     throw new Error('Data Not found!')
   }
+}
+
+//Message Broker
+
+const EXCHANGE_NAME = accessEnv('EXCHANGE_NAME', 'amqp://localhost:5672')
+
+export const CreateChannel = async () => {
+  const amqpServer = accessEnv('AMQP_SERVER', 'amqp://localhost:5672')
+  const connection = await amqplib.connect(amqpServer)
+  const channel = await connection.createChannel()
+  await channel.assertQueue(EXCHANGE_NAME, { durable: true })
+  return channel
+}
+
+export const PublishMessage = (channel: Channel, service: string, data: any) => {
+  const message = {
+    routingKey: service,
+    data: data
+  }
+  channel.publish(EXCHANGE_NAME, service, Buffer.from(JSON.stringify(message)))
+  console.log('Sent: ', message)
+}
+
+export const SubscribeMessage = async (channel: Channel, service: any) => {
+  await channel.assertExchange(EXCHANGE_NAME, 'direct', { durable: true })
+  const q = await channel.assertQueue('', { exclusive: true })
+  console.log(` Waiting for messages in queue: ${q.queue}`)
+
+  channel.bindQueue(q.queue, EXCHANGE_NAME, service)
+
+  channel.consume(
+    q.queue,
+    (msg) => {
+      if (msg) {
+        console.log('the message is:', msg.content.toString())
+        service.SubscribeEvents(msg.content.toString())
+      }
+      console.log('[X] received')
+    },
+    {
+      noAck: true
+    }
+  )
 }

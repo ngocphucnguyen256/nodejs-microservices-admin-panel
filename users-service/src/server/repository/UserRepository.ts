@@ -9,6 +9,9 @@ const userRepository = dataSource.getRepository(User)
 export default class UserRepository {
   async getUserByUsername(username: string) {
     try {
+      if (!username) {
+        return null
+      }
       const user = await userRepository.findOne({ where: { username: username } })
       if (!user) {
         return null
@@ -21,6 +24,9 @@ export default class UserRepository {
 
   async getUserByEmail(email: string) {
     try {
+      if (!email) {
+        return null
+      }
       const user = await userRepository.findOne({ where: { email: email } })
       if (!user) {
         return null

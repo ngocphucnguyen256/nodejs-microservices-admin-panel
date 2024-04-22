@@ -2,7 +2,7 @@ import { DataSourceOptions } from 'typeorm'
 import Message from '../db/entities/Message'
 import ChatRoom from '../db/entities/ChatRoom'
 import ChatRoomUser from '../db/entities/ChatRoomUser'
-
+import User from '../db/entities/User'
 import { accessEnv } from '../utils'
 
 const ormConfig: DataSourceOptions = {
@@ -12,7 +12,7 @@ const ormConfig: DataSourceOptions = {
   username: accessEnv('CHAT_SERVICE_DB_USER', 'root'), // Database username
   password: accessEnv('CHAT_SERVICE_DB_PASSWORD', 'password'), // Database password
   database: accessEnv('CHAT_SERVICE_DB_NAME', 'db'), // Database name
-  entities: [Message, ChatRoom, ChatRoomUser], // Entities to be loaded for this connection
+  entities: [Message, ChatRoom, User, ChatRoomUser], // Entities to be loaded for this connection
   synchronize: true, // Synchronize the database state with the entity definitions on startup
   logging: false // Enable logging
 }

@@ -4,6 +4,7 @@ import dataSource from '../../db/data-source'
 import User from '../../db/entities/User'
 import { Repository } from 'typeorm'
 import omit from 'lodash.omit'
+import { Channel } from 'amqplib'
 
 import {
   generateUUID,
@@ -11,20 +12,28 @@ import {
   passwordHashSync,
   accessEnv,
   checkData,
-  GenerateSignature
+  GenerateSignature,
+  PublishMessage
 } from '../../utils'
 
 export default class UserController {
   private userRepository: UserRepository
   private userDataSourceRepository: Repository<User>
+  private channel: Channel
+  private routeKeys: Record<string, string>
 
-  constructor() {
+  constructor(channel: Channel) {
     this.userRepository = new UserRepository()
     this.userDataSourceRepository = dataSource.getRepository(User)
+    this.channel = channel
+    this.routeKeys = {
+      USER_CREATED: 'USER_CREATED',
+      USER_UPDATED: 'USER_UPDATED',
+      USER_DELETED: 'USER_DELETED'
+    }
   }
 
   loginUser = async (req: Request, res: Response, next: NextFunction) => {
-    console.log('received login request')
     if ((!req.body.username && !req.body.email) || !req.body.password) {
       return next(new Error('Invalid body!'))
     }
@@ -52,6 +61,7 @@ export default class UserController {
   }
 
   createUser = async (req: Request, res: Response, next: NextFunction) => {
+    console.log('received signup request')
     if ((!req.body.username && !req.body.email) || !req.body.password) {
       return next(new Error('Invalid body!'))
     }
@@ -70,7 +80,10 @@ export default class UserController {
         email: req.body.email ? req.body.email : ''
       }
 
-      await this.userDataSourceRepository.save([user])
+      await this.userDataSourceRepository.save([user]).then(() => {
+        console.log('User created')
+        PublishMessage(this.channel, this.routeKeys.USER_CREATED, user)
+      })
 
       return res.json(omit(user, ['passwordHash']))
     } catch (err) {
