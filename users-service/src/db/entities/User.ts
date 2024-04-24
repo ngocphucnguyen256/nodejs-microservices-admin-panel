@@ -18,6 +18,6 @@ export default class User {
   @CreateDateColumn()
   createdAt: string
 
-  @Column({ type: 'blob', nullable: true })
+  @Column({ type: 'longblob', nullable: true, select: false })
   avatar: Buffer
 }

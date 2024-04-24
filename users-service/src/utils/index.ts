@@ -44,9 +44,7 @@ export const ValidateSignature = async (req: any) => {
   try {
     const JWT_SECRET = accessEnv('JWT_SECRET', 'my_secret_key')
     const signature = req.get('Authorization')
-    console.log(signature)
     if (!signature) return false
-    console.log(signature)
     const payload = await jwt.verify(signature.split(' ')[1], JWT_SECRET)
     req.user = payload
     return true
@@ -105,4 +103,19 @@ export const SubscribeMessage = async (channel: Channel, service: any) => {
       noAck: true
     }
   )
+}
+
+import type { Repository } from 'typeorm'
+
+export function includeAll<T extends object>(repository: Repository<T>): Array<keyof T> {
+  return repository.metadata.columns.map((col) => col.propertyName) as Array<keyof T>
+}
+
+export function include<T extends object>(
+  repository: Repository<T>,
+  unselectedColumnsToAdd: Array<keyof T>
+): Array<keyof T> {
+  return repository.metadata.columns
+    .filter((col) => col.isSelect || (!col.isSelect && unselectedColumnsToAdd.includes(col.propertyName as keyof T)))
+    .map((col) => col.propertyName) as Array<keyof T>
 }

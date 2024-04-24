@@ -5,6 +5,7 @@ import User from '../../db/entities/User'
 import { Repository } from 'typeorm'
 import omit from 'lodash.omit'
 import { Channel } from 'amqplib'
+import multer from 'multer'
 
 import {
   generateUUID,
@@ -13,7 +14,9 @@ import {
   accessEnv,
   checkData,
   GenerateSignature,
-  PublishMessage
+  PublishMessage,
+  includeAll,
+  include
 } from '../../utils'
 
 export default class UserController {
@@ -21,10 +24,12 @@ export default class UserController {
   private userDataSourceRepository: Repository<User>
   private channel: Channel
   private routeKeys: Record<string, string>
+  private upload: multer.Multer
 
-  constructor(channel: Channel) {
+  constructor(channel: Channel, upload: multer.Multer) {
     this.userRepository = new UserRepository()
     this.userDataSourceRepository = dataSource.getRepository(User)
+    this.upload = upload
     this.channel = channel
     this.routeKeys = {
       USER_CREATED: 'USER_CREATED',
@@ -91,13 +96,64 @@ export default class UserController {
     }
   }
 
-  getUser = async (req: Request, res: Response, next: NextFunction) => {
+  getUserAvatar = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const user = await this.userDataSourceRepository.findOne({ where: { id: req.params.userId } })
+      const user = await this.userDataSourceRepository.findOne({ where: { id: req.params.userId }, select: ['avatar'] })
+      if (!user || !user.avatar) {
+        return res.status(404).send('User not found or user has no avatar!')
+      }
+      res.set('Content-Type', 'image/jpeg')
+      return res.send(user.avatar)
+    } catch (err) {
+      return next(err)
+    }
+  }
 
+  editUser = async (req: Request, res: Response, next: NextFunction) => {
+    if (!req.user._id) return next(new Error('Invalid body!'))
+
+    try {
+      const targetId = req.params.userId
+      const user = await this.userDataSourceRepository.findOne({ where: { id: targetId } })
       if (!user) return next(new Error('Invalid user ID!'))
 
-      return res.json(user)
+      if (req.body.username) user.username = req.body.username
+      if (req.body.email) user.email = req.body.email
+      if (req.body.password) user.passwordHash = passwordHashSync(req.body.password)
+      if (req.file) user.avatar = req.file ? req.file.buffer : user.avatar
+      await this.userDataSourceRepository.save([user])
+
+      return res.json(omit(user, ['avatar']))
+    } catch (err) {
+      return next(err)
+    }
+  }
+
+  getUser = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const user = await this.userDataSourceRepository.findOne({
+        where: { id: req.params.userId },
+        select: include(this.userDataSourceRepository, ['avatar'])
+      })
+
+      if (!user) return next(new Error('Invalid user ID!'))
+      const avatarUrl = user.avatar ? `/users/${user.id}/avatar` : null
+      return res.json({ ...omit(user, 'avatar'), avatarUrl })
+    } catch (err) {
+      return next(err)
+    }
+  }
+
+  getUsers = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const users = await this.userDataSourceRepository.find({
+        select: include(this.userDataSourceRepository, ['avatar'])
+      })
+      const formattedUsers = users.map((user) => {
+        const avatarUrl = user.avatar ? `/users/${user.id}/avatar` : null
+        return { ...omit(user, 'avatar'), avatarUrl }
+      })
+      return res.json(formattedUsers)
     } catch (err) {
       return next(err)
     }
