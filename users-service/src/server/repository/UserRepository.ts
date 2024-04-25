@@ -21,6 +21,17 @@ export default class UserRepository {
       return null
     }
   }
+  async findById(id: string) {
+    try {
+      const user = await userRepository.findOne({ where: { id: id } })
+      if (!user) {
+        return null
+      }
+      return user
+    } catch (err: any) {
+      return null
+    }
+  }
 
   async getUserByEmail(email: string) {
     try {
@@ -33,6 +44,30 @@ export default class UserRepository {
       }
       return user
     } catch (err: any) {
+      return null
+    }
+  }
+  async findByGoogleId(googleId: string) {
+    try {
+      const user = await userRepository.findOne({ where: { googleId: googleId } })
+      if (!user) {
+        return null
+      }
+      return user
+    } catch (err: any) {
+      return null
+    }
+  }
+  async createUserFromGoogle(profile: any) {
+    try {
+      const user = new User()
+      user.googleId = profile.id
+      user.email = profile.emails[0].value
+      user.username = profile.displayName
+      await userRepository.save(user)
+      return user
+    } catch (err: any) {
+      console.log(err)
       return null
     }
   }

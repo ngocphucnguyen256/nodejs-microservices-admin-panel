@@ -53,7 +53,7 @@ export default class UserController {
 
       if (!user) return next(new Error('Invalid username!'))
 
-      if (!passwordCompareSync(req.body.password, user.passwordHash)) {
+      if (!user.passwordHash || !passwordCompareSync(req.body.password, user.passwordHash)) {
         return next(new Error('Invalid password!'))
       }
 

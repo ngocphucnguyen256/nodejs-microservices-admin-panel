@@ -5,11 +5,14 @@ export default class User {
   @PrimaryGeneratedColumn('uuid')
   id: string
 
+  @Column({ nullable: true })
+  googleId: string
+
   @Column()
   @Column({ unique: true })
   username: string
 
-  @Column({ select: false })
+  @Column({ select: false, nullable: true })
   passwordHash: string
 
   @Column({ unique: true })

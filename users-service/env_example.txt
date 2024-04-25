@@ -3,11 +3,13 @@ USER_SERVICE_DB_PORT = '3306'
 USER_SERVICE_DB_USER = 'root'
 USER_SERVICE_DB_PASSWORD = 'password'
 USER_SERVICE_DB_NAME = 'db'
-
+AMQP_SERVER = amqp://user:password@rabbitmq:5672
 JWT_SECRET='my_secret_key'
+SESSION_SECRET = 'a-secret-key'
 
-AMQP_SERVER = 'amqp://user:password@rabbitmq:5672'
 EXCHANGE_NAME= 'user_exchange'
 USER_QUEUE_NAME = 'user_queue'
-
 USER_SESSION_EXPIRY_HOURS = 1
+
+GOOGLE_CLIENT_ID= 'fill-this-field'
+GOOGLE_CLIENT_SECRET='fill-this-field'
