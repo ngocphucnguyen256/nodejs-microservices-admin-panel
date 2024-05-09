@@ -122,6 +122,7 @@ export default class UserController {
       if (req.body.password) user.passwordHash = passwordHashSync(req.body.password)
       if (req.file) user.avatar = req.file ? req.file.buffer : user.avatar
       await this.userDataSourceRepository.save([user])
+      PublishMessage(this.channel, this.routeKeys.USER_UPDATED, user)
 
       return res.json(omit(user, ['avatar']))
     } catch (err) {

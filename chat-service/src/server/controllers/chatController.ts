@@ -74,6 +74,16 @@ export default class ChatController {
         //sync database
         userRepository.save(data)
         break
+      case 'USER_UPDATED':
+        console.log('User updated event')
+        //sync database
+        userRepository.save(data)
+        break
+      case 'USER_DELETED':
+        console.log('User deleted event')
+        //sync database
+        userRepository.delete(data)
+        break
       default:
         break
     }
