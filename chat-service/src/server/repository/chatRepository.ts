@@ -2,6 +2,7 @@ import dataSource from '../../db/data-source'
 import Message from '../../db/entities/Message'
 import ChatRoom from '../../db/entities/ChatRoom'
 import User from '../../db/entities/User'
+import ChatRoomUser from '../../db/entities/ChatRoomUser'
 import { Repository, DataSource } from 'typeorm'
 import { generateUUID } from '../../utils'
 import dayjs from 'dayjs'
@@ -9,11 +10,13 @@ import dayjs from 'dayjs'
 export default class ChatRepository {
   private messageRepository: Repository<Message>
   private chatRoomRepository: Repository<ChatRoom>
+  private chatRoomUserRepository: Repository<ChatRoomUser>
   private dataSource: DataSource
 
   constructor() {
     this.messageRepository = dataSource.getRepository(Message)
     this.chatRoomRepository = dataSource.getRepository(ChatRoom)
+    this.chatRoomUserRepository = dataSource.getRepository(ChatRoomUser)
     this.dataSource = dataSource
   }
 
@@ -42,5 +45,13 @@ export default class ChatRepository {
 
   async getChatRoom(id: string) {
     return await this.chatRoomRepository.findOneBy({ id })
+  }
+
+  async getUsersInChatRoom(chatRoom: ChatRoom) {
+    return await this.chatRoomUserRepository.find({
+      where: {
+        chatRoom
+      }
+    })
   }
 }

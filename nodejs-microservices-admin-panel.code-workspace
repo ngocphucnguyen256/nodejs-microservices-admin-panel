@@ -5,6 +5,9 @@
 		},
 		{
 			"path": "../Nuxt-Vue3-TS-Work-Admin"
+		},
+		{
+			"path": "../vnpay_nodejs"
 		}
 	],
 	"settings": {}

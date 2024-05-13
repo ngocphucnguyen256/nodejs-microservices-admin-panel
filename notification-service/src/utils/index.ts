@@ -5,7 +5,6 @@
 import 'dotenv/config'
 import { v4 as uuidv4 } from 'uuid'
 import jwt from 'jsonwebtoken'
-import { NextFunction, Request, Response } from 'express'
 import amqplib, { Channel, Connection } from 'amqplib'
 
 const cache: { [key: string]: string } = {}
@@ -35,13 +34,13 @@ export const GenerateSignature = async (payload: any) => {
   }
 }
 
-export const ValidateSignature = async (req: Request) => {
+export const ValidateSignature = async (req: any) => {
   try {
     const JWT_SECRET = accessEnv('JWT_SECRET', 'my_secret_key')
     const signature = req.get('Authorization')
     if (!signature) return false
     const payload = await jwt.verify(signature.split(' ')[1], JWT_SECRET)
-    req.user = payload as any
+    req.user = payload
     return true
   } catch (error) {
     console.log(error)

@@ -20,7 +20,7 @@ export enum MessagesStatus {
 
 @Entity()
 export default class Message {
-  @PrimaryGeneratedColumn()
+  @PrimaryGeneratedColumn('uuid')
   id: string
 
   @Column({

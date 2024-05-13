@@ -4,7 +4,7 @@ import User from './User'
 
 @Entity()
 export default class ChatRoomUser {
-  @PrimaryGeneratedColumn()
+  @PrimaryGeneratedColumn('uuid')
   id: string
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })

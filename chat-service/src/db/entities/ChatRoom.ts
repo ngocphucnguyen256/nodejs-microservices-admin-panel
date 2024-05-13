@@ -3,7 +3,7 @@ import Message from './Message'
 
 @Entity()
 export default class ChatRoom {
-  @PrimaryGeneratedColumn()
+  @PrimaryGeneratedColumn('uuid')
   id: string
 
   @Column()

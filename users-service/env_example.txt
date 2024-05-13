@@ -7,8 +7,7 @@ AMQP_SERVER = amqp://user:password@rabbitmq:5672
 JWT_SECRET='my_secret_key'
 SESSION_SECRET = 'a-secret-key'
 
-EXCHANGE_NAME= 'user_exchange'
-USER_QUEUE_NAME = 'user_queue'
+EXCHANGE_NAME= 'app_exchange'
 USER_SESSION_EXPIRY_HOURS = 1
 
 GOOGLE_CLIENT_ID= 'fill-this-field'

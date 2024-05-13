@@ -74,3 +74,23 @@ services:
     image: mysql:5.7.20
     ports:
       - "7201:3306"
+
+  notification-service:
+    build:
+      context: "."
+      dockerfile: "./notification-service/Dockerfile"
+    depends_on:
+      - notification-service-db
+    ports:
+      - "7102:7102"
+    volumes:
+      - ./notification-service:/opt/app
+
+  notification-service-db:
+    environment:
+      - MYSQL_ROOT_PASSWORD=password
+      - MYSQL_DATABASE=db
+    image: mysql:5.7.20
+    ports:
+      - "7202:3306"
+

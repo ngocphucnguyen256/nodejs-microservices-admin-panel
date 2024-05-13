@@ -6,10 +6,18 @@ import { Channel } from 'amqplib'
 const setupRoutes = (app: Express, channel: Channel) => {
   const chatController = new ChatController(channel)
 
-  app.post('/chat-rooms', UserAuth, chatController.createChatRoom)
-  app.get('/chat-rooms', UserAuth, chatController.listChatRooms)
-  app.post('/messages', UserAuth, chatController.sendMessage)
-  app.get('/chat-rooms/:id/messages', UserAuth, chatController.listMessages)
+  app.post('/chat-rooms', UserAuth, async (req, res, next) => {
+    return chatController.createChatRoom(req, res, next)
+  })
+  app.get('/chat-rooms', UserAuth, async (req, res, next) => {
+    return chatController.listChatRooms(req, res, next)
+  })
+  app.post('/messages', UserAuth, async (req, res, next) => {
+    return chatController.sendMessage(req, res, next)
+  })
+  app.get('/chat-rooms/:id/messages', UserAuth, async (req, res, next) => {
+    return chatController.listMessages(req, res, next)
+  })
 }
 
 export default setupRoutes

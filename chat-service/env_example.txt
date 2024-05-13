@@ -7,5 +7,4 @@ CHAT_SERVICE_DB_NAME = 'db'
 JWT_SECRET='my_secret_key'
 
 AMQP_SERVER = 'amqp://user:password@rabbitmq:5672'
-EXCHANGE_NAME= 'user_exchange'
-USER_QUEUE_NAME = 'user_queue'
+EXCHANGE_NAME= 'app_exchange'
