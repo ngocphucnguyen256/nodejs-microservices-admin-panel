@@ -4,20 +4,28 @@ import { Server } from 'http'
 import dataSource from '../../db/data-source'
 import Message from '../../db/entities/Message'
 import ChatRepository from '../repository/chatRepository'
-import { accessEnv } from '../../utils'
+import { accessEnv, CreateChannel } from '../../utils'
 import jwt from 'jsonwebtoken'
+import { Channel } from 'amqplib'
 
 const messageRepository = dataSource.getRepository(Message)
-const chatRepository = new ChatRepository()
 
 class WebSocketManager {
   wss: WebSocket.Server
   rooms: Record<string, Set<WebSocket>>
+  channel: Channel
+  customChatRepository: ChatRepository
 
   constructor(server: Server) {
     this.wss = new WebSocket.Server({ server })
     this.rooms = {} // Object to manage rooms and their participants
+    this.initializeChannelAndRepository()
     this.initialize()
+  }
+
+  async initializeChannelAndRepository() {
+    this.channel = await CreateChannel()
+    this.customChatRepository = new ChatRepository(this.channel)
   }
 
   initialize() {
@@ -45,13 +53,15 @@ class WebSocketManager {
           }
           this.rooms[roomId].add(ws)
           console.log('joined room', roomId, 'with', this.rooms[roomId].size, 'participants')
+          //add to chat room users
+          this.customChatRepository.addUserToChatRoom(roomId, payload._id)
           return
         }
 
         if (type === 'MESSAGE' && this.rooms[roomId]) {
           //save the message to the database
           console.log('Message:', content)
-          chatRepository
+          this.customChatRepository
             .saveMessage(roomId, payload._id, content)
             .then((message) => {
               console.log('message saved to db')

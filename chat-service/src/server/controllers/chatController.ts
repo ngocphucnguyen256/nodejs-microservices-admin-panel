@@ -13,11 +13,11 @@ const messageRepository = dataSource.getRepository(Message)
 const chatRoomRepository = dataSource.getRepository(ChatRoom)
 const userRepository = dataSource.getRepository(User)
 const chatRoomUserRepository = dataSource.getRepository(ChatRoomUser)
-const chatRepository = new ChatRepository()
 
 export default class ChatController {
   private channel: Channel
   private routeKeys: Record<string, string>
+  private customChatRepository: ChatRepository
 
   constructor(channel: Channel) {
     this.channel = channel
@@ -27,6 +27,7 @@ export default class ChatController {
       USER_DELETED: 'USER_DELETED',
       CREATE_NOTIFICATION: 'CREATE_NOTIFICATION'
     }
+    this.customChatRepository = new ChatRepository(channel)
     // To listen
     SubscribeMessage(channel, this)
   }
@@ -66,17 +67,7 @@ export default class ChatController {
     if (!chatRoom) {
       return res.status(404).json({ message: 'Chat room not found' })
     }
-    const message = await chatRepository.saveMessage(chatRoom, reqUser._id, req.body.content)
-    //send notification
-    const users = await chatRepository.getUsersInChatRoom(chatRoom)
-    PublishMessage(
-      this.channel,
-      this.routeKeys.CREATE_NOTIFICATION,
-      JSON.stringify({
-        users: users,
-        message
-      })
-    )
+    const message = await this.customChatRepository.saveMessage(chatRoom, reqUser._id, req.body.content)
     return res.json(message)
   }
 

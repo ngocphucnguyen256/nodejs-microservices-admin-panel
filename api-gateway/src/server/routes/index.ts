@@ -30,6 +30,24 @@ const setupRoutes = (app: Express) => {
       changeOrigin: true
     })
   )
+
+  // WebSocket proxy for the notification service
+  // app.use(
+  //   '/api/ws/notification',
+  //   createProxyMiddleware({
+  //     target: accessEnv('NOTIFICATION_SERVICE_WS_URL', 'ws://notification-service:7102'),
+  //     ws: true, // This enables WebSocket proxy
+  //     changeOrigin: true
+  //   })
+  // )
+
+  app.use(
+    '/api/notification',
+    createProxyMiddleware({
+      target: accessEnv('NOTIFICATION_SERVICE_URL', 'http://notification-service:7102'),
+      changeOrigin: true
+    })
+  )
 }
 
 export default setupRoutes

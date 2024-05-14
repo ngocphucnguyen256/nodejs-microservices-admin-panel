@@ -61,11 +61,15 @@ export const checkData = (data: any) => {
 
 const EXCHANGE_NAME = accessEnv('EXCHANGE_NAME', 'amqp://localhost:5672')
 
+let channelInstance: Channel
+
 export const CreateChannel = async () => {
+  if (channelInstance) return channelInstance
   const amqpServer = accessEnv('AMQP_SERVER', 'amqp://localhost:5672')
   const connection = await amqplib.connect(amqpServer)
   const channel = await connection.createChannel()
   await channel.assertQueue(EXCHANGE_NAME, { durable: true })
+  channelInstance = channel
   return channel
 }
 

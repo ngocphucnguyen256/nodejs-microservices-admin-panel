@@ -2,12 +2,12 @@ import bodyParser from 'body-parser'
 import cors from 'cors'
 import express, { NextFunction, Request, Response } from 'express'
 import { createServer } from 'http'
-import WebSocketManager from './websocket/WebSocketManager'
 import { accessEnv, CreateChannel } from '../utils'
+import { createWebSocket } from './websocket/WebSocketInstance'
 
 import setupRoutes from './routes'
 
-const PORT = parseInt(accessEnv('PORT', '7100'), 10)
+const PORT = parseInt(accessEnv('PORT', '7102'), 10)
 
 const startServer = async () => {
   const app = express()
@@ -31,9 +31,13 @@ const startServer = async () => {
 
   const channel = await CreateChannel()
 
-  const ws = new WebSocketManager(server)
+  setupRoutes(app, channel)
 
-  setupRoutes(app, channel, ws)
+  //log incoming requests
+  app.use((req: Request, res: Response, next: NextFunction) => {
+    console.info(`${req.method} ${req.path}`)
+    next()
+  })
 
   app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
     return res.status(500).json({ message: err.message })
@@ -42,7 +46,7 @@ const startServer = async () => {
   server.listen(PORT, '0.0.0.0', () => {
     console.info(`Notification service listening on ${PORT}`)
     // WebSocket setup
-    ws.initialize()
+    createWebSocket(server)
   })
 }
 

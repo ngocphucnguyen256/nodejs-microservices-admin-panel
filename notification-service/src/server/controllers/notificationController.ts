@@ -1,17 +1,21 @@
-import { Request, Response } from 'express'
+import { Request, Response, NextFunction } from 'express'
 import dayjs from 'dayjs'
 import dataSource from '../../db/data-source'
 import Notification from '../../db/entities/Notification'
 import NotificationLog, { ChangeTypes } from '../../db/entities/NotificationLog'
+import Service from '../../db/entities/Service'
 import User from '../../db/entities/User'
 import NotificationRepository from '../repository/notificationRepository'
 import { generateUUID, SubscribeMessage } from '../../utils'
 import { Channel } from 'amqplib'
 import WebSocketManager from '../websocket/WebSocketManager'
+import { In } from 'typeorm'
+import { createWebSocket } from '../websocket/WebSocketInstance'
 
 const notificationRepository = dataSource.getRepository(Notification)
 const notificationLogRepository = dataSource.getRepository(NotificationLog)
 const userRepository = dataSource.getRepository(User)
+const serviceRepository = dataSource.getRepository(Service)
 const CustomNotificationRepository = new NotificationRepository()
 
 export default class NotificationController {
@@ -19,9 +23,9 @@ export default class NotificationController {
   private ws: WebSocketManager
   private routeKeys: Record<string, string>
 
-  constructor(channel: Channel, ws: WebSocketManager) {
+  constructor(channel: Channel) {
     this.channel = channel
-    this.ws = ws
+    this.ws = createWebSocket()
     this.routeKeys = {
       USER_CREATED: 'USER_CREATED',
       USER_UPDATED: 'USER_UPDATED',
@@ -31,7 +35,7 @@ export default class NotificationController {
     // To listen
     SubscribeMessage(channel, this)
   }
-  async createNotification(req: Request, res: Response) {
+  async createNotification(req: Request, res: Response, next: NextFunction) {
     const reqUser = req.user
     let notification = new Notification()
     notification.id = generateUUID()
@@ -44,7 +48,7 @@ export default class NotificationController {
     return res.json(notification)
   }
 
-  async listNotificationsByUser(req: Request, res: Response) {
+  async listNotificationsByUser(req: Request, res: Response, next: NextFunction) {
     const notifications = await notificationRepository.find({
       where: {
         user: { id: req.user.id }
@@ -53,7 +57,7 @@ export default class NotificationController {
     return res.json(notifications)
   }
 
-  async updateNotification(req: Request, res: Response) {
+  async updateNotification(req: Request, res: Response, next: NextFunction) {
     let notification = await notificationRepository.findOneBy({ id: req.params.id })
     if (!notification) {
       return res.status(404).json({ message: 'Notification not found' })
@@ -98,14 +102,32 @@ export default class NotificationController {
           if (!users || !message) {
             return
           }
-          users.forEach(async (user: any) => {
+          //get users from database
+          const dbUsers = await userRepository.find({
+            where: {
+              id: In(users.map((user: User) => user.id))
+            }
+          })
+          if (!dbUsers) {
+            return
+          }
+          dbUsers.forEach(async (user: User) => {
+            //service
+            let service = new Service()
+            service.name = routingKey
+            service = await serviceRepository.save(service)
+            //notification
             let notification = new Notification()
             notification.id = generateUUID()
             notification.user = user
             notification.payload = message.content
-            notification.service = routingKey
+            notification.service = service
             notification = await notificationRepository.save(notification)
             //send to websocket
+            if (!this.ws) {
+              console.log("websocket doesn't exist error")
+              this.ws = createWebSocket()
+            }
             this.ws.sendNotification(notification, user.id)
           })
         }

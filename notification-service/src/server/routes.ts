@@ -2,13 +2,16 @@ import { Express } from 'express'
 import NotificationController from './controllers/notificationController'
 import { UserAuth } from './middlewares/UserAuth'
 import { Channel } from 'amqplib'
-import WebSocketManager from './websocket/WebSocketManager'
 
-const setupRoutes = (app: Express, channel: Channel, ws: WebSocketManager) => {
-  const notificationController = new NotificationController(channel, ws)
+const setupRoutes = (app: Express, channel: Channel) => {
+  const notificationController = new NotificationController(channel)
 
-  app.post('/notifications', UserAuth, notificationController.createNotification)
-  app.get('/notifications', UserAuth, notificationController.listNotificationsByUser)
+  app.post('/notifications', UserAuth, async (req, res, next) => {
+    return notificationController.createNotification(req, res, next)
+  })
+  app.get('/notifications', UserAuth, async (req, res, next) => {
+    return notificationController.listNotificationsByUser(req, res, next)
+  })
 }
 
 export default setupRoutes

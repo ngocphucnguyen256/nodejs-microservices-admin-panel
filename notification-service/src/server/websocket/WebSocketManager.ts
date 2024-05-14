@@ -55,6 +55,9 @@ class WebSocketManager {
   }
 
   sendNotification(notification: Notification, userId: string) {
+    if (!this.socketClients[userId]) {
+      return
+    }
     this.socketClients[userId].forEach((client) => {
       if (client.readyState === WebSocket.OPEN) {
         client.send(JSON.stringify({ notification, userId }))

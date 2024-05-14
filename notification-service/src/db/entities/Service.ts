@@ -8,6 +8,6 @@ export default class Service {
   @Column()
   name: string
 
-  @Column('text')
+  @Column('text', { nullable: true })
   description: string
 }
