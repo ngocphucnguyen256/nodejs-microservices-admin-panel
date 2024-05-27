@@ -10,7 +10,8 @@
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "prettier": "prettier --check .",
-    "prettier:fix": "prettier --write ."
+    "prettier:fix": "prettier --write .",
+    "swagger-autogen": "ts-node src/server/swagger.ts"
   },
   "devDependencies": {
     "@types/amqplib": "^0.10.5",
@@ -19,6 +20,7 @@
     "@types/jsonwebtoken": "^9.0.6",
     "@types/lodash.omit": "^4.5.9",
     "@types/node": "^18.13.0",
+    "@types/swagger-ui-express": "^4.1.6",
     "@types/uuid": "^9.0.8",
     "@types/ws": "^8.5.10",
     "@typescript-eslint/eslint-plugin": "5.0.0",
@@ -43,6 +45,8 @@
     "lodash.omit": "^4.5.0",
     "mysql2": "^3.9.1",
     "reflect-metadata": "^0.2.1",
+    "swagger-autogen": "^2.23.7",
+    "swagger-ui-express": "^5.0.0",
     "typeorm": "^0.3.1",
     "uuid": "^9.0.1",
     "ws": "^8.16.0"

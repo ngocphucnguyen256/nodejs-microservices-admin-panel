@@ -4,13 +4,17 @@ import express, { NextFunction, Request, Response } from 'express'
 import { createServer } from 'http'
 import WebSocketManager from './websocket/WebSocketManager'
 import { accessEnv, CreateChannel } from '../utils'
-
 import setupRoutes from './routes'
+
+//swagger
+import swaggerUi from 'swagger-ui-express'
+import swaggerFile from './swagger_output.json'
 
 const PORT = parseInt(accessEnv('PORT', '7100'), 10)
 
 const startServer = async () => {
   const app = express()
+
   const server = createServer(app)
 
   app.use(bodyParser.json())
@@ -30,6 +34,8 @@ const startServer = async () => {
   )
 
   const channel = await CreateChannel()
+
+  app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerFile))
 
   setupRoutes(app, channel)
 
