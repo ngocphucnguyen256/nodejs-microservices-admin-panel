@@ -52,13 +52,12 @@ export default class ChatRepository {
     message = await this.messageRepository.save(message)
     //send notification
     const users = await this.getUsersInChatRoom(message.chatRoom)
-    message.content = `You have a new message from${sender.username}`
     PublishMessage(
       this.channel,
       this.routeKeys.CREATE_NOTIFICATION,
       JSON.stringify({
         users: users,
-        message
+        payload: `You have a new message from${sender.username} in ${message.chatRoom.name}`
       })
     )
     return message

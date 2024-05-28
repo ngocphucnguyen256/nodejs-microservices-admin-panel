@@ -75,9 +75,41 @@ export default class ChatController {
     const messages = await messageRepository.find({
       where: {
         chatRoom: { id: req.params.id }
-      }
+      },
+      relations: ['user', 'chatRoom']
     })
     return res.json(messages)
+  }
+
+  async getUsersInRoom(req: Request, res: Response, next: NextFunction) {
+    console.log('Requested ChatRoom ID:', req.params.id) // Debug: Log the chat room ID
+
+    const chatRoom = await chatRoomRepository.findOneBy({
+      id: req.params.id
+    })
+
+    if (!chatRoom) {
+      return res.status(404).json({ message: 'Chat room not found' })
+    }
+    // const query = chatRoomUserRepository
+    //   .createQueryBuilder('chatRoomUser')
+    //   .leftJoinAndSelect('chatRoomUser.user', 'user')
+    //   .where('chatRoomUser.chatRoomId = :chatRoomId', { chatRoomId: chatRoom.id })
+    //   .select(['user.id', 'user.username', 'user.email'])
+    const query = chatRoomUserRepository.query(`
+    SELECT user.id, user.username, user.email, user.avatar
+    FROM chat_room_user, user
+    WHERE chat_room_user.userId = user.id
+    AND chat_room_user.chatRoomId = '${req.params.id}';
+    `)
+
+    const users = await query
+    return res.json(users)
+  }
+
+  async getAllUsers(req: Request, res: Response, next: NextFunction) {
+    const users = await userRepository.find()
+    return res.json(users)
   }
 
   getRouteKeys() {

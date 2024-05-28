@@ -1,4 +1,5 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToMany, OneToMany } from 'typeorm'
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm'
+import ChatRoomUser from './ChatRoomUser'
 
 @Entity()
 export default class User {
@@ -17,4 +18,7 @@ export default class User {
 
   @Column({ nullable: true })
   lastSeen: Date
+
+  @OneToMany(() => ChatRoomUser, (chatRoomUser) => chatRoomUser.user)
+  chatRoomUsers: ChatRoomUser[]
 }

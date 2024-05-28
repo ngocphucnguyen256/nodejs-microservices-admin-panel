@@ -68,7 +68,7 @@ class WebSocketManager {
               this.rooms[roomId].forEach((client) => {
                 if (client.readyState === WebSocket.OPEN) {
                   //send the message to the client
-                  client.send(JSON.stringify({ roomId, content, senderId: payload._id }))
+                  client.send(JSON.stringify(message))
                 }
               })
             })

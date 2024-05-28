@@ -98,8 +98,8 @@ export default class NotificationController {
       case 'CREATE_NOTIFICATION':
         {
           console.log('Received create Notification event !!!!!!!!!!!!!!!!')
-          const { users, message } = JSON.parse(data)
-          if (!users || !message) {
+          const { users, payload } = JSON.parse(data)
+          if (!users || !payload) {
             return
           }
           //get users from database
@@ -120,7 +120,7 @@ export default class NotificationController {
             let notification = new Notification()
             notification.id = generateUUID()
             notification.user = user
-            notification.payload = message.content
+            notification.payload = payload.content
             notification.service = service
             notification = await notificationRepository.save(notification)
             //send to websocket

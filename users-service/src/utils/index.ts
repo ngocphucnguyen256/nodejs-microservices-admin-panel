@@ -33,7 +33,8 @@ export const passwordHashSync = (password: string) => bcrypt.hashSync(password, 
 export const GenerateSignature = async (payload: any) => {
   try {
     const JWT_SECRET = accessEnv('JWT_SECRET', 'my_secret_key')
-    return await jwt.sign(payload, JWT_SECRET, { expiresIn: '1d' })
+    const USER_SESSION_EXPIRY_HOURS = accessEnv('USER_SESSION_EXPIRY_HOURS', '1')
+    return await jwt.sign(payload, JWT_SECRET, { expiresIn: `${USER_SESSION_EXPIRY_HOURS}h` })
   } catch (error) {
     console.log(error)
     return error

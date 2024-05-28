@@ -13,6 +13,6 @@ export default class ChatRoomUser {
   @ManyToOne(() => ChatRoom)
   chatRoom: ChatRoom
 
-  @ManyToOne(() => User)
+  @ManyToOne(() => User, (user) => user.chatRoomUsers)
   user: User
 }

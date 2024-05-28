@@ -18,6 +18,12 @@ const setupRoutes = (app: Express, channel: Channel) => {
   app.get('/chat-rooms/:id/messages', UserAuth, async (req, res, next) => {
     return chatController.listMessages(req, res, next)
   })
+  app.get('/chat-rooms/:id/users', UserAuth, async (req, res, next) => {
+    return chatController.getUsersInRoom(req, res, next)
+  })
+  app.get('/users', UserAuth, async (req, res, next) => {
+    return chatController.getAllUsers(req, res, next)
+  })
 }
 
 export default setupRoutes
