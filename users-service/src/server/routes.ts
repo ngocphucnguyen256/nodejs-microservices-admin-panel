@@ -23,16 +23,22 @@ const setupRoutes = (app: Express, channel: Channel, upload: multer.Multer) => {
 
   //Get user info
   app.get('/users/:userId', UserAuth, async (req, res, next) => {
-    return userController.getUser(req, res, next)
+    return userController.getUserById(req, res, next)
+  })
+
+  //get current user
+  app.get('/me', UserAuth, async (req, res, next) => {
+    return userController.getCurrentUser(req, res, next)
+  })
+
+  //put current user
+  app.put('/me', UserAuth, upload.single('avatar'), async (req, res, next) => {
+    return userController.editUser(req, res, next, true)
   })
 
   //Edit user
   app.put('/users/:userId', UserAuth, upload.single('avatar'), async (req, res, next) => {
     return userController.editUser(req, res, next)
-  })
-
-  app.get('/users/:userId/avatar', async (req, res, next) => {
-    return userController.getUserAvatar(req, res, next)
   })
 }
 

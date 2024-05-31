@@ -3,6 +3,8 @@ import express, { NextFunction, Request, Response } from 'express'
 import bodyParserErrorHandler from 'express-body-parser-error-handler'
 import { urlencoded, json } from 'body-parser'
 import multer from 'multer'
+import path from 'path'
+import fs from 'fs'
 
 import { accessEnv, CreateChannel } from '../utils'
 import session from 'express-session'
@@ -19,7 +21,21 @@ const startServer = async () => {
   app.use(json({ limit: '250kb' }))
 
   // Set up storage engine
-  const storage = multer.memoryStorage() // Stores files in memory
+  const uploadsDir = path.join(__dirname, '../uploads')
+  if (!fs.existsSync(uploadsDir)) {
+    fs.mkdirSync(uploadsDir, { recursive: true })
+  }
+
+  const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+      cb(null, uploadsDir)
+    },
+    filename: function (req, file, cb) {
+      const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9)
+      cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname))
+    }
+  })
+
   const upload = multer({ storage: storage })
 
   app.use(
@@ -51,11 +67,15 @@ const startServer = async () => {
   app.use(googlePassport.session())
 
   app.use('/', router)
+  // app.get('/uploads', express.static(uploadsDir))
+  app.use('/uploads', express.static(uploadsDir))
+
   setupRoutes(app, channel, upload)
 
   // Add request logging middleware at the beginning
 
   app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
+    console.error(err.stack)
     return res.status(500).json({ message: err.message })
   })
 

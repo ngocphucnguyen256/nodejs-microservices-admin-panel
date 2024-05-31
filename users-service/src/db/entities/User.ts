@@ -21,6 +21,6 @@ export default class User {
   @CreateDateColumn()
   createdAt: string
 
-  @Column({ type: 'longblob', nullable: true, select: false })
-  avatar: Buffer
+  @Column({ nullable: true })
+  avatarUrl: string
 }

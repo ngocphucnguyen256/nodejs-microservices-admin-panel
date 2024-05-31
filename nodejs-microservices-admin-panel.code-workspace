@@ -4,10 +4,7 @@
 			"path": "."
 		},
 		{
-			"path": "../Nuxt-Vue3-TS-Work-Admin"
-		},
-		{
-			"path": "../vnpay_nodejs"
+			"path": "../react-tailwind-admin-dashboard"
 		}
 	],
 	"settings": {}
