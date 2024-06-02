@@ -31,13 +31,8 @@ const setupRoutes = (app: Express, channel: Channel, upload: multer.Multer) => {
     return userController.getCurrentUser(req, res, next)
   })
 
-  //put current user
-  app.put('/me', UserAuth, upload.single('avatar'), async (req, res, next) => {
-    return userController.editUser(req, res, next, true)
-  })
-
   //Edit user
-  app.put('/users/:userId', UserAuth, upload.single('avatar'), async (req, res, next) => {
+  app.patch('/users/:userId', UserAuth, upload.single('avatar'), async (req, res, next) => {
     return userController.editUser(req, res, next)
   })
 }

@@ -7,6 +7,7 @@ import { Repository, DataSource } from 'typeorm'
 import { generateUUID, PublishMessage } from '../../utils'
 import dayjs from 'dayjs'
 import { Channel } from 'amqplib'
+import { EntityNotFoundException, UnauthorizedException } from '@/utils/commonException'
 
 export default class ChatRepository {
   private messageRepository: Repository<Message>
@@ -98,5 +99,19 @@ export default class ChatRepository {
       return
     }
     await this.chatRoomUserRepository.save(chatRoomUser)
+  }
+
+  async deleteMessage(id: string, userId: string) {
+    const message = await this.messageRepository.findOne({
+      where: { id },
+      relations: ['user']
+    })
+    if (!message) {
+      throw new EntityNotFoundException('Message not found')
+    }
+    if (message.user.id !== userId) {
+      throw new UnauthorizedException('Unauthorized')
+    }
+    await this.messageRepository.delete({ id })
   }
 }

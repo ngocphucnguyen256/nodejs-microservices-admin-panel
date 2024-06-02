@@ -15,10 +15,15 @@ class WebSocketManager {
   rooms: Record<string, Set<WebSocket>>
   channel: Channel
   customChatRepository: ChatRepository
+  registerNotificationUsers: Set<{
+    userId: string
+    ws: WebSocket
+  }>
 
   constructor(server: Server) {
     this.wss = new WebSocket.Server({ server })
     this.rooms = {} // Object to manage rooms and their participants
+    this.registerNotificationUsers = new Set()
     this.initializeChannelAndRepository()
     this.initialize()
   }
@@ -31,10 +36,19 @@ class WebSocketManager {
   initialize() {
     this.wss.on('connection', (ws) => {
       ws.on('message', (message) => {
-        const { token, type, roomId, content } = JSON.parse(message.toString())
+        const { token, type, roomId, content, messageId } = JSON.parse(message.toString())
 
         if (!token) {
           ws.send(JSON.stringify({ error: 'No token provided' }))
+          return
+        }
+
+        // Verify the JWT token
+        const decoded = jwt.verify(token, accessEnv('JWT_SECRET', 'secret'))
+        const payload = decoded as { _id: string }
+
+        if (type === 'REGISTER_NOTIFICATION') {
+          this.registerNotificationUsers.add({ userId: payload._id, ws })
           return
         }
 
@@ -42,10 +56,6 @@ class WebSocketManager {
           ws.send(JSON.stringify({ error: 'No room provided' }))
           return
         }
-
-        // Verify the JWT token
-        const decoded = jwt.verify(token, accessEnv('JWT_SECRET', 'secret'))
-        const payload = decoded as { _id: string }
 
         if (type === 'JOIN') {
           if (!this.rooms[roomId]) {
@@ -65,15 +75,48 @@ class WebSocketManager {
             .saveMessage(roomId, payload._id, content)
             .then((message) => {
               console.log('message saved to db')
+              //send the message to room participants
               this.rooms[roomId].forEach((client) => {
                 if (client.readyState === WebSocket.OPEN) {
-                  //send the message to the client
                   client.send(JSON.stringify(message))
                 }
+              })
+              //send the message to notification users
+              const chatRoomUsers = this.customChatRepository.getUsersInChatRoom(roomId)
+              chatRoomUsers.then((users) => {
+                users.forEach((user) => {
+                  this.registerNotificationUsers.forEach((registerUser) => {
+                    if (registerUser.userId === user.id) {
+                      registerUser.ws.send(JSON.stringify(message))
+                    }
+                  })
+                })
               })
             })
             .catch((err) => {
               console.log('error saving message:', err)
+            })
+        }
+        if (type === 'DELETE_MESSAGE' && this.rooms[roomId]) {
+          //save the message to the database
+          this.customChatRepository
+            .deleteMessage(messageId, payload._id)
+            .then((message) => {
+              console.log('message deleted from db:', messageId)
+              //send delete notification to room participants
+              this.rooms[roomId].forEach((client) => {
+                if (client.readyState === WebSocket.OPEN) {
+                  client.send(
+                    JSON.stringify({
+                      type: 'DELETED_MESSAGE',
+                      messageId
+                    })
+                  )
+                }
+              })
+            })
+            .catch((err) => {
+              console.log('error delete message:', err)
             })
         }
       })

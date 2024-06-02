@@ -12,6 +12,9 @@ const setupRoutes = (app: Express, channel: Channel) => {
   app.get('/notifications', UserAuth, async (req, res, next) => {
     return notificationController.listNotificationsByUser(req, res, next)
   })
+  app.patch('/notifications/:id', UserAuth, async (req, res, next) => {
+    return notificationController.updateNotification(req, res, next)
+  })
 }
 
 export default setupRoutes

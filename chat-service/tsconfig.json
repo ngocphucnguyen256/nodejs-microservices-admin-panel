@@ -12,6 +12,9 @@
       "typeRoots": ["src/@types", "node_modules/@types"],
       "target": "es5",
       "types": ["node"],
+      "paths": {
+        "@/*": ["./src/*"]
+      },
     },
     "include": ["src/**/*.ts"],
   }

@@ -68,7 +68,7 @@ export default class UserController {
   createUser = async (req: Request, res: Response, next: NextFunction) => {
     console.log('received signup request')
     if ((!req.body.username && !req.body.email) || !req.body.password) {
-      return next(new Error('Invalid body!'))
+      return res.status(400).json({ message: 'Invalid body!' })
     }
 
     try {
@@ -76,7 +76,7 @@ export default class UserController {
         (await this.userRepository.getUserByUsername(req.body.username)) ||
         (await this.userRepository.getUserByEmail(req.body.email))
 
-      if (userCheck) return next(new Error('Username or email already existed!'))
+      if (userCheck) return res.status(400).json({ message: 'Username or email already existed!' })
 
       const user = {
         id: generateUUID(),

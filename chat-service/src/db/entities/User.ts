@@ -13,8 +13,8 @@ export default class User {
   @Column()
   email: string
 
-  @Column({ type: 'blob', nullable: true })
-  avatar: Buffer
+  @Column({ nullable: true })
+  avatarUrl: string
 
   @Column({ nullable: true })
   lastSeen: Date

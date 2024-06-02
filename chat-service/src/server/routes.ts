@@ -15,6 +15,9 @@ const setupRoutes = (app: Express, channel: Channel) => {
   app.post('/messages', UserAuth, async (req, res, next) => {
     return chatController.sendMessage(req, res, next)
   })
+  app.delete('/messages/:id', UserAuth, async (req, res, next) => {
+    return chatController.deleteMessage(req, res, next)
+  })
   app.get('/chat-rooms/:id/messages', UserAuth, async (req, res, next) => {
     return chatController.listMessages(req, res, next)
   })

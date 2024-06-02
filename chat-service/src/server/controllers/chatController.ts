@@ -8,6 +8,7 @@ import ChatRoomUser from '../../db/entities/ChatRoomUser'
 import ChatRepository from '../repository/chatRepository'
 import { generateUUID, SubscribeMessage, PublishMessage } from '../../utils'
 import { Channel } from 'amqplib'
+import { EntityNotFoundException, UnauthorizedException } from '@/utils/commonException'
 
 const messageRepository = dataSource.getRepository(Message)
 const chatRoomRepository = dataSource.getRepository(ChatRoom)
@@ -76,9 +77,27 @@ export default class ChatController {
       where: {
         chatRoom: { id: req.params.id }
       },
-      relations: ['user', 'chatRoom']
+      relations: ['user', 'chatRoom'],
+      order: {
+        createdAt: 'ASC'
+      }
     })
     return res.json(messages)
+  }
+
+  async deleteMessage(req: Request, res: Response, next: NextFunction) {
+    try {
+      await this.customChatRepository.deleteMessage(req.params.id, req.user.id)
+      return res.json({ message: 'Message deleted' })
+    } catch (error) {
+      if (error instanceof EntityNotFoundException) {
+        return res.status(404).json({ message: error.message })
+      }
+      if (error instanceof UnauthorizedException) {
+        return res.status(401).json({ message: error.message })
+      }
+      next(error) // Handle other unexpected errors
+    }
   }
 
   async getUsersInRoom(req: Request, res: Response, next: NextFunction) {
@@ -91,11 +110,7 @@ export default class ChatController {
     if (!chatRoom) {
       return res.status(404).json({ message: 'Chat room not found' })
     }
-    // const query = chatRoomUserRepository
-    //   .createQueryBuilder('chatRoomUser')
-    //   .leftJoinAndSelect('chatRoomUser.user', 'user')
-    //   .where('chatRoomUser.chatRoomId = :chatRoomId', { chatRoomId: chatRoom.id })
-    //   .select(['user.id', 'user.username', 'user.email'])
+
     const query = chatRoomUserRepository.query(`
     SELECT user.id, user.username, user.email, user.avatar
     FROM chat_room_user, user
@@ -127,7 +142,7 @@ export default class ChatController {
         userRepository.save(data)
         break
       case 'USER_UPDATED':
-        console.log('User updated event')
+        console.log('User updated event', data)
         //sync database
         userRepository.save(data)
         break
