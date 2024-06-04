@@ -9,6 +9,7 @@ import ChatRepository from '../repository/chatRepository'
 import { generateUUID, SubscribeMessage, PublishMessage } from '../../utils'
 import { Channel } from 'amqplib'
 import { EntityNotFoundException, UnauthorizedException } from '@/utils/commonException'
+import { Like } from 'typeorm'
 
 const messageRepository = dataSource.getRepository(Message)
 const chatRoomRepository = dataSource.getRepository(ChatRoom)
@@ -112,9 +113,9 @@ export default class ChatController {
     }
 
     const query = chatRoomUserRepository.query(`
-    SELECT user.id, user.username, user.email, user.avatar
+    SELECT user.id, user.username, user.email, user.avatarUrl, chat_room_user.active
     FROM chat_room_user, user
-    WHERE chat_room_user.userId = user.id
+    WHERE chat_room_user.userId = user.id and chat_room_user.active = true
     AND chat_room_user.chatRoomId = '${req.params.id}';
     `)
 
@@ -122,7 +123,67 @@ export default class ChatController {
     return res.json(users)
   }
 
+  async deleteUserFromRoom(req: Request, res: Response, next: NextFunction) {
+    if (!req.params.userId || !req.params.id) {
+      return res.status(400).json({ message: 'User ID and Chat Room ID are required' })
+    }
+
+    const chatRoomUser = await chatRoomUserRepository.findOneBy({
+      chatRoom: { id: req.params.id },
+      user: { id: req.params.userId }
+    })
+
+    if (!chatRoomUser) {
+      return res.status(404).json({ message: 'User not found in chat room' })
+    }
+
+    chatRoomUser.active = false
+    await chatRoomUserRepository.save(chatRoomUser)
+    return res.json({ message: 'User deleted from chat room' })
+  }
+
+  async addUserToRoom(req: Request, res: Response, next: NextFunction) {
+    if (!req.body.userId || !req.params.id) {
+      return res.status(400).json({ message: 'User ID and Chat Room ID are required' })
+    }
+
+    const chatRoomUser = await chatRoomUserRepository.findOneBy({
+      chatRoom: { id: req.params.id },
+      user: { id: req.body.userId }
+    })
+
+    if (chatRoomUser) {
+      chatRoomUser.active = true
+      await chatRoomUserRepository.save(chatRoomUser)
+      return res.json({ message: 'User added to chat room' })
+    }
+
+    const newChatRoomUser = new ChatRoomUser()
+    newChatRoomUser.id = generateUUID()
+    const chatRoom = await chatRoomRepository.findOneBy({ id: req.params.id })
+    if (!chatRoom) {
+      return res.status(404).json({ message: 'Chat room not found' })
+    }
+    const user = await userRepository.findOneBy({ id: req.body.userId })
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' })
+    }
+    newChatRoomUser.chatRoom = chatRoom
+    newChatRoomUser.user = user
+    newChatRoomUser.active = true
+    await chatRoomUserRepository.save(newChatRoomUser)
+    return res.json({ message: 'User added to chat room' })
+  }
+
   async getAllUsers(req: Request, res: Response, next: NextFunction) {
+    if (req.query.name) {
+      const users = await userRepository.find({
+        where: {
+          username: Like(`%${req.query.name}%`)
+        }
+      })
+      return res.json(users)
+    }
     const users = await userRepository.find()
     return res.json(users)
   }

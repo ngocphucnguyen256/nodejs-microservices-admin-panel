@@ -15,4 +15,7 @@ export default class ChatRoomUser {
 
   @ManyToOne(() => User, (user) => user.chatRoomUsers)
   user: User
+
+  @Column({ default: true })
+  active: boolean
 }

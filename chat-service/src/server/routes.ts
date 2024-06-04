@@ -24,6 +24,12 @@ const setupRoutes = (app: Express, channel: Channel) => {
   app.get('/chat-rooms/:id/users', UserAuth, async (req, res, next) => {
     return chatController.getUsersInRoom(req, res, next)
   })
+  app.delete('/chat-rooms/:id/users/:userId', UserAuth, async (req, res, next) => {
+    return chatController.deleteUserFromRoom(req, res, next)
+  })
+  app.post('/chat-rooms/:id/users', UserAuth, async (req, res, next) => {
+    return chatController.addUserToRoom(req, res, next)
+  })
   app.get('/users', UserAuth, async (req, res, next) => {
     return chatController.getAllUsers(req, res, next)
   })
