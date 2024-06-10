@@ -3,6 +3,17 @@ import { createProxyMiddleware } from 'http-proxy-middleware'
 
 import accessEnv from '../../helper/accessEnv'
 
+export const chatWS = createProxyMiddleware({
+  target: accessEnv('CHAT_SERVICE_WS_URL', 'ws://chat-service:7100'),
+  changeOrigin: true,
+  ws: true
+})
+export const notificationWS = createProxyMiddleware({
+  target: accessEnv('NOTIFICATION_SERVICE_WS_URL', 'ws://notification-service:7102'),
+  changeOrigin: true,
+  ws: true
+})
+
 const setupRoutes = (app: Express) => {
   // Regular HTTP proxy
   app.use(
@@ -14,14 +25,7 @@ const setupRoutes = (app: Express) => {
   )
 
   // WebSocket proxy for the chat service
-  app.use(
-    '/api/ws/chat',
-    createProxyMiddleware({
-      target: accessEnv('CHAT_SERVICE_WS_URL', 'ws://chat-service:7100'),
-      ws: true, // This enables WebSocket proxy
-      changeOrigin: true
-    })
-  )
+  app.use('/api/ws/chat', chatWS)
 
   app.use(
     '/api/chat',
@@ -32,14 +36,7 @@ const setupRoutes = (app: Express) => {
   )
 
   // WebSocket proxy for the notification service
-  // app.use(
-  //   '/api/ws/notification',
-  //   createProxyMiddleware({
-  //     target: accessEnv('NOTIFICATION_SERVICE_WS_URL', 'ws://notification-service:7102'),
-  //     ws: true, // This enables WebSocket proxy
-  //     changeOrigin: true
-  //   })
-  // )
+  app.use('/api/ws/notification', notificationWS)
 
   app.use(
     '/api/notification',

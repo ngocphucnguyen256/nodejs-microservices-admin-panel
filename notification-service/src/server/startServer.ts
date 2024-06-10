@@ -3,9 +3,10 @@ import cors from 'cors'
 import express, { NextFunction, Request, Response } from 'express'
 import { createServer } from 'http'
 import { accessEnv, CreateChannel } from '../utils'
-import { createWebSocket } from './websocket/WebSocketInstance'
+import { createWebSocket, getWebSocketInstance } from './websocket/WebSocketInstance'
 
 import setupRoutes from './routes'
+import { get } from 'https'
 
 const PORT = parseInt(accessEnv('PORT', '7102'), 10)
 
@@ -29,6 +30,9 @@ const startServer = async () => {
     })
   )
 
+  // WebSocket setup
+  createWebSocket(server)
+
   const channel = await CreateChannel()
 
   setupRoutes(app, channel)
@@ -44,9 +48,12 @@ const startServer = async () => {
   })
 
   server.listen(PORT, '0.0.0.0', () => {
+    if (getWebSocketInstance().wss) {
+      console.info('WebSocket server is running')
+    } else {
+      console.error('WebSocket server is not running')
+    }
     console.info(`Notification service listening on ${PORT}`)
-    // WebSocket setup
-    createWebSocket(server)
   })
 }
 

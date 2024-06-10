@@ -52,7 +52,7 @@ export default class ChatRepository {
     message.createdAt = dayjs().format('YYYY-MM-DD HH:mm:ss')
     message = await this.messageRepository.save(message)
     //send notification
-    const users = await this.getUsersInChatRoom(message.chatRoom)
+    const users = await this.getUsersInChatRoom(message.chatRoom.id)
     PublishMessage(
       this.channel,
       this.routeKeys.CREATE_NOTIFICATION,
@@ -68,12 +68,23 @@ export default class ChatRepository {
     return await this.chatRoomRepository.findOneBy({ id })
   }
 
-  async getUsersInChatRoom(chatRoom: ChatRoom) {
-    return await this.chatRoomUserRepository.find({
-      where: {
-        chatRoom: { id: chatRoom.id }
-      }
+  async getUsersInChatRoom(chatRoomId: string) {
+    const chatRoom = await this.chatRoomRepository.findOneBy({
+      id: chatRoomId
     })
+
+    if (!chatRoom) {
+      throw new EntityNotFoundException('Chat room not found')
+    }
+
+    const query = this.chatRoomRepository.query(`
+    SELECT user.id, user.username, user.email, user.avatarUrl, chat_room_user.active
+    FROM chat_room_user, user
+    WHERE chat_room_user.userId = user.id and chat_room_user.active = true
+    AND chat_room_user.chatRoomId = '${chatRoomId}';
+    `)
+    const users = await query
+    return users as User[]
   }
 
   async addUserToChatRoom(chatRoomId: string, userId: string) {

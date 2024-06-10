@@ -21,7 +21,9 @@ class WebSocketManager {
 
   initialize() {
     this.wss.on('connection', (ws) => {
+      console.log('connected')
       ws.on('message', (message) => {
+        console.log('message received: ', message.toString())
         const { token, type, content } = JSON.parse(message.toString())
 
         if (!token) {
@@ -34,12 +36,17 @@ class WebSocketManager {
         const payload = decoded as { _id: string }
 
         if (type === 'CONNECT') {
+          if (!this.socketClients[payload._id]) {
+            this.socketClients[payload._id] = new Set()
+          }
           this.socketClients[payload._id].add(ws)
+          console.log(`Client connected: ${payload._id}`)
           return
         }
       })
 
       ws.on('close', () => {
+        console.log('WebSocket connection closed')
         Object.keys(this.socketClients).forEach((key) => {
           this.socketClients[key].delete(ws)
           if (this.socketClients[key].size === 0) {
@@ -55,12 +62,15 @@ class WebSocketManager {
   }
 
   sendNotification(notification: Notification, userId: string) {
+    console.log('Sending notification to user:', userId)
     if (!this.socketClients[userId]) {
+      console.log('No connected clients for user:', userId)
       return
     }
     this.socketClients[userId].forEach((client) => {
       if (client.readyState === WebSocket.OPEN) {
-        client.send(JSON.stringify({ notification, userId }))
+        console.log('sent notification via websocket')
+        client.send(JSON.stringify(notification))
       }
     })
   }

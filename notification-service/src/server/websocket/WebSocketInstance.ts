@@ -8,3 +8,10 @@ export const createWebSocket = (server?: any) => {
   }
   return websocket
 }
+
+export const getWebSocketInstance = () => {
+  if (!websocket) {
+    throw new Error('WebSocketManager instance has not been created. Call createWebSocket(server) first.')
+  }
+  return websocket
+}

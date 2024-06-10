@@ -1,5 +1,5 @@
 REALTIME CHAT - done
-UPLOADS - ok
+UPLOADS - done
 PAYMENT - pending
 GOOGLE LOGIN - done
 LIVE STREAMING

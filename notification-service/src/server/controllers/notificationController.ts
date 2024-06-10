@@ -10,7 +10,7 @@ import { generateUUID, SubscribeMessage } from '../../utils'
 import { Channel } from 'amqplib'
 import WebSocketManager from '../websocket/WebSocketManager'
 import { In } from 'typeorm'
-import { createWebSocket } from '../websocket/WebSocketInstance'
+import { getWebSocketInstance } from '../websocket/WebSocketInstance'
 
 const notificationRepository = dataSource.getRepository(Notification)
 const notificationLogRepository = dataSource.getRepository(NotificationLog)
@@ -25,7 +25,7 @@ export default class NotificationController {
 
   constructor(channel: Channel) {
     this.channel = channel
-    this.ws = createWebSocket()
+    this.ws = getWebSocketInstance()
     this.routeKeys = {
       USER_CREATED: 'USER_CREATED',
       USER_UPDATED: 'USER_UPDATED',
@@ -62,12 +62,14 @@ export default class NotificationController {
     if (!notification) {
       return res.status(404).json({ message: 'Notification not found' })
     }
-    notification.payload = req.body.payload
+    if (req.body.status) notification.status = req.body.status
+    if (req.body.payload) notification.payload = req.body.payload
+
     notification = await notificationRepository.save(notification)
-    const log = new NotificationLog()
-    log.notification = notification
-    log.changeType = ChangeTypes.UPDATE
-    await notificationLogRepository.save(log)
+    // const log = new NotificationLog()
+    // log.notification = notification
+    // log.changeType = ChangeTypes.UPDATE
+    // await notificationLogRepository.save(log)
     return res.json(notification)
   }
 
@@ -102,7 +104,7 @@ export default class NotificationController {
           if (!users || !payload) {
             return
           }
-          //get users from database
+
           const dbUsers = await userRepository.find({
             where: {
               id: In(users.map((user: User) => user.id))
@@ -120,14 +122,10 @@ export default class NotificationController {
             let notification = new Notification()
             notification.id = generateUUID()
             notification.user = user
-            notification.payload = payload.content
+            notification.payload = payload
             notification.service = service
             notification = await notificationRepository.save(notification)
             //send to websocket
-            if (!this.ws) {
-              console.log("websocket doesn't exist error")
-              this.ws = createWebSocket()
-            }
             this.ws.sendNotification(notification, user.id)
           })
         }
