@@ -78,7 +78,7 @@ export default class ChatRepository {
     }
 
     const query = this.chatRoomRepository.query(`
-    SELECT user.id, user.username, user.email, user.avatarUrl, chat_room_user.active
+    SELECT distinct user.id, user.username, user.email, user.avatarUrl, chat_room_user.active
     FROM chat_room_user, user
     WHERE chat_room_user.userId = user.id and chat_room_user.active = true
     AND chat_room_user.chatRoomId = '${chatRoomId}';
