@@ -4,4 +4,4 @@ WORKDIR /opt/app
 
 RUN yarn
 
-CMD yarn watch
+CMD yarn swagger-autogen && yarn watch

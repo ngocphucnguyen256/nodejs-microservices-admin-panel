@@ -58,6 +58,23 @@ export default class ChatController {
   }
 
   async sendMessage(req: Request, res: Response, next: NextFunction) {
+    console.log('requested')
+    /* #swagger.parameters['body'] = { 
+        in: 'body', 
+        '@schema': { 
+            "required": ["chatRoomId", "content"], 
+            "properties": { 
+                "chatRoomId": { 
+                    "type": "string", 
+                    "example": "123e4567-e89b-12d3-a456-426655440000" 
+                },
+                "content": {
+                    "type": "string",
+                    "example": "Hello, world!"
+                }
+            }
+        }
+    } */
     const reqUser = req.user
     if (!reqUser) {
       return res.status(401).json({ message: 'Unauthorized' })

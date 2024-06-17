@@ -11,7 +11,7 @@
     "lint:fix": "eslint . --fix",
     "prettier": "prettier --check .",
     "prettier:fix": "prettier --write .",
-    "swagger-autogen": "ts-node src/server/swagger.ts"
+    "swagger-autogen": "ts-node --files src/server/swagger.ts"
   },
   "devDependencies": {
     "@types/amqplib": "^0.10.5",
