@@ -7,6 +7,8 @@ import {
   ManyToOne,
   JoinColumn
 } from 'typeorm'
+import { IsEnum, IsString, IsUUID } from 'class-validator'
+import { Type } from 'class-transformer'
 import ChatRoom from './ChatRoom'
 import User from './User'
 
@@ -21,6 +23,7 @@ export enum MessagesStatus {
 @Entity()
 export default class Message {
   @PrimaryGeneratedColumn('uuid')
+  @IsUUID()
   id: string
 
   @Column({
@@ -28,20 +31,26 @@ export default class Message {
     enum: MessagesStatus,
     default: MessagesStatus.SENT
   })
+  @IsEnum(MessagesStatus)
   status: MessagesStatus
 
   @ManyToOne(() => User)
+  @Type(() => User)
   user: User
 
   @ManyToOne(() => ChatRoom, (chatRoom: ChatRoom) => chatRoom.messages)
+  @Type(() => ChatRoom)
   chatRoom: ChatRoom
 
   @Column('text')
+  @IsString()
   content: string
 
   @UpdateDateColumn()
+  @IsString()
   updatedAt: string
 
   @CreateDateColumn()
+  @IsString()
   createdAt: string
 }

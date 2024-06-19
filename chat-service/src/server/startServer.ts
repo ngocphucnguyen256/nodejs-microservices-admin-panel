@@ -5,6 +5,7 @@ import { createServer } from 'http'
 import WebSocketManager from './websocket/WebSocketManager'
 import { accessEnv, CreateChannel } from '../utils'
 import setupRoutes from './routes'
+import 'reflect-metadata'
 
 //swagger
 import swaggerUi from 'swagger-ui-express'

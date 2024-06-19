@@ -58,7 +58,6 @@ export default class ChatController {
   }
 
   async sendMessage(req: Request, res: Response, next: NextFunction) {
-    console.log('requested')
     /* #swagger.parameters['body'] = { 
         in: 'body', 
         '@schema': { 
@@ -74,7 +73,14 @@ export default class ChatController {
                 }
             }
         }
-    } */
+    } 
+      #swagger.responses[200] = {
+        description: 'Message sent',
+        schema: {
+            "$ref": "#/definitions/Message"
+        }
+    }
+    */
     const reqUser = req.user
     if (!reqUser) {
       return res.status(401).json({ message: 'Unauthorized' })
