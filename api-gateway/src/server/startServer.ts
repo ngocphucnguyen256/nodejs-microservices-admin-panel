@@ -4,18 +4,26 @@ import express from 'express'
 import setupRoutes, { chatWS, notificationWS } from './routes'
 import accessEnv from '../helper/accessEnv'
 
+//swagger
+import swaggerUi from 'swagger-ui-express'
+import swaggerFile from './swagger_output.json'
+
 const PORT = parseInt(accessEnv('PORT', '7000'))
 
 const startServer = () => {
   const app = express()
   // app.use(express.json())
   // app.use(cookieParser())
+
   app.use(
     cors({
       origin: '*', // Allow all origins
       credentials: true // Accept credentials (cookies, authentication, etc.) from the request
     })
   )
+
+  app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerFile))
+
   setupRoutes(app)
 
   const server = app.listen(PORT, '0.0.0.0', () => {

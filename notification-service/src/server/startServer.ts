@@ -6,13 +6,21 @@ import { accessEnv, CreateChannel } from '../utils'
 import { createWebSocket, getWebSocketInstance } from './websocket/WebSocketInstance'
 
 import setupRoutes from './routes'
-import { get } from 'https'
+
+//swagger
+import swaggerUi from 'swagger-ui-express'
+import swaggerFile from './swagger_output.json'
+
+//logger
+import loggerManager from '../logger/loggerManager'
 
 const PORT = parseInt(accessEnv('PORT', '7102'), 10)
 
 const startServer = async () => {
   const app = express()
   const server = createServer(app)
+
+  const logger = loggerManager.getLogger('notification-service', 'error')
 
   app.use(bodyParser.json())
 
@@ -35,25 +43,28 @@ const startServer = async () => {
 
   const channel = await CreateChannel()
 
+  app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerFile))
+
   setupRoutes(app, channel)
 
   //log incoming requests
   app.use((req: Request, res: Response, next: NextFunction) => {
-    console.info(`${req.method} ${req.path}`)
+    logger.info(`${req.method} ${req.path}`)
     next()
   })
 
   app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
+    logger.error(err.message)
     return res.status(500).json({ message: err.message })
   })
 
   server.listen(PORT, '0.0.0.0', () => {
     if (getWebSocketInstance().wss) {
-      console.info('WebSocket server is running')
+      logger.info('WebSocket server is running')
     } else {
-      console.error('WebSocket server is not running')
+      logger.error('WebSocket server is not running')
     }
-    console.info(`Notification service listening on ${PORT}`)
+    logger.info(`Notification service listening on ${PORT}`)
   })
 }
 

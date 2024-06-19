@@ -12,10 +12,19 @@ import googlePassport from './controllers/UserGoogle'
 import setupRoutes from './routes'
 import router from './expressRouter'
 
+//swagger
+import swaggerUi from 'swagger-ui-express'
+import swaggerFile from './swagger_output.json'
+
+//logger
+import loggerManager from '../logger/loggerManager'
+
 const PORT = parseInt(accessEnv('PORT', '7101'), 10)
 
 const startServer = async () => {
   const app = express()
+
+  const logger = loggerManager.getLogger('users-service', 'error')
 
   app.use(urlencoded({ extended: true }))
   app.use(json({ limit: '250kb' }))
@@ -41,7 +50,7 @@ const startServer = async () => {
   app.use(
     bodyParserErrorHandler({
       onError: (err: Error, req: Request, res: Response) => {
-        console.log(err)
+        logger.error(err.message)
         return res.status(400).json({ message: err.message })
       }
     })
@@ -66,6 +75,8 @@ const startServer = async () => {
   app.use(googlePassport.initialize())
   app.use(googlePassport.session())
 
+  app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerFile))
+
   app.use('/', router)
   // app.get('/uploads', express.static(uploadsDir))
   app.use('/uploads', express.static(uploadsDir))
@@ -75,7 +86,7 @@ const startServer = async () => {
   // Add request logging middleware at the beginning
 
   app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
-    console.error(err.stack)
+    logger.error(err.stack)
     return res.status(500).json({ message: err.message })
   })
 

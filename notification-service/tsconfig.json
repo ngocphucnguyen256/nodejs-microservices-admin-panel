@@ -1,17 +1,21 @@
 {
-    "compilerOptions": {
-      "emitDecoratorMetadata": true,
-      "experimentalDecorators": true,
-      "esModuleInterop": true,
-      "forceConsistentCasingInFileNames": true,
-      "module": "commonjs",
-      "skipLibCheck": true,
-      "strict": true,
-      "strictPropertyInitialization": false,
-      "typeRoots": ["src/@types", "node_modules/@types"],
-      "target": "es5",
-      "types": ["node"],
+  "compilerOptions": {
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "module": "commonjs",
+    "skipLibCheck": true,
+    "strict": true,
+    "strictPropertyInitialization": false,
+    "typeRoots": ["src/@types", "node_modules/@types"],
+    "target": "es5",
+    "types": ["node"],
+    "paths": {
+      "@/*": ["./src/*"]
     },
-    "include": ["src/**/*.ts"],
-  }
+  },
+  "include": ["src/**/*.ts"],
+}
 
