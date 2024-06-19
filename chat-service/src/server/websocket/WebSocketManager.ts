@@ -7,6 +7,9 @@ import ChatRepository from '../repository/chatRepository'
 import { accessEnv, CreateChannel } from '../../utils'
 import jwt from 'jsonwebtoken'
 import { Channel } from 'amqplib'
+import loggerManager from '@/logger/loggerManager'
+
+const logger = loggerManager.getLogger('chat-service', 'error')
 
 const messageRepository = dataSource.getRepository(Message)
 
@@ -131,7 +134,7 @@ class WebSocketManager {
       })
 
       ws.on('error', (err) => {
-        console.log('error', err)
+        logger.error('error', err)
       })
     })
   }

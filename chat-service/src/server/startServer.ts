@@ -11,10 +11,15 @@ import 'reflect-metadata'
 import swaggerUi from 'swagger-ui-express'
 import swaggerFile from './swagger_output.json'
 
+//logger
+import loggerManager from '../logger/loggerManager'
+
 const PORT = parseInt(accessEnv('PORT', '7100'), 10)
 
 const startServer = async () => {
   const app = express()
+
+  const logger = loggerManager.getLogger('chat-service', 'error')
 
   const server = createServer(app)
 
@@ -41,6 +46,7 @@ const startServer = async () => {
   setupRoutes(app, channel)
 
   app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
+    logger.error(err.message)
     return res.status(500).json({ message: err.message })
   })
 
