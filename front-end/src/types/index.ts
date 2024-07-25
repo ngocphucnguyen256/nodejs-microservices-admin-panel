@@ -6,11 +6,12 @@ export type Action=  {
 
 export type User = {
     id: string,
-    token: string,
+    token?: string,
     email: string,
     username: string,
-    avatarUrl: string,
-    lastSeen: string,
+    avatarUrl?: string,
+    lastSeen?: string,
+    role?: string,
 }
 
 export interface AuthState {

@@ -2,6 +2,8 @@ import { Suspense, lazy, useEffect, useState } from 'react';
 import { Route, Routes } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 
+import ProtectedRouteAdmin from "./common/ProtectedRouteAdmin";
+
 import ECommerce from './pages/Dashboard/ECommerce';
 import SignIn from './pages/Authentication/SignIn';
 import SignUp from './pages/Authentication/SignUp';
@@ -19,7 +21,7 @@ const DefaultLayout = lazy(() => import('./layout/DefaultLayout'));
 
 function App() {
   const [loading, setLoading] = useState<boolean>(true);
-  const userToken = useSelector((state: RootState)=> state.auth.user?.token);
+  const userToken = useSelector((state: RootState)=> state.auth?.user?.token);
 
   useEffect(() => {
     setTimeout(() => setLoading(false), 1000);
@@ -55,14 +57,14 @@ function App() {
           <Route index element={<ECommerce />} />
           <Route path="chat/:id" element={<ChatDetail />} /> {/* Dynamic route for chat rooms */}
           {routes.map((routes, index) => {
-            const { path, component: Component } = routes;
+            const { path, component: Component, role } = routes;
             return (
               <Route
                 key={index}
                 path={path}
                 element={
                   <Suspense fallback={<Loader />}>
-                    <Component />
+                    {role === "admin" ? (<ProtectedRouteAdmin ><Component /> </ProtectedRouteAdmin>) : <Component />}
                   </Suspense>
                 }
               />
