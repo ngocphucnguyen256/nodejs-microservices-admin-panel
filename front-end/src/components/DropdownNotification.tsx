@@ -12,7 +12,7 @@ import { NOTIFICATION_SET_MESSAGES} from '@/store/actions/notifyActions'
 const DropdownNotification = () => {
   const dispatch = useDispatch();
   const [dropdownOpen, setDropdownOpen] = useState(false);
-  const notifications = useSelector((state: RootState) => state.notification?.notifications) as Notification[] | []; 
+  const notifications = useSelector((state: RootState) => state.notification?.notifications) as Notification[] || []; 
 
   const trigger = useRef<any>(null);
   const dropdown = useRef<any>(null);
