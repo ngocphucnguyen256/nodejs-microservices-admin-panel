@@ -3,8 +3,8 @@ services:
   api-gateway:
     container_name: api-gateway
     build:
-      context: "."
-      dockerfile: "./api-gateway/Dockerfile"
+      context: "./api-gateway"
+      dockerfile: "Dockerfile"
     depends_on:
       - chat-service
       - users-service
@@ -12,12 +12,14 @@ services:
       - "7000:7000"
     volumes:
       - ./api-gateway:/opt/app
+      - /opt/app/node_modules
+    command: npx ts-node-dev --respawn --poll --files index.dev.ts
 
   chat-service:
     container_name: chat-service
     build:
-      context: "."
-      dockerfile: "./chat-service/Dockerfile"
+      context: "./chat-service"
+      dockerfile: "Dockerfile"
     depends_on:
       - chat-service-db
       - rabbitmq
@@ -25,6 +27,8 @@ services:
       - "7100:7100"
     volumes:
       - ./chat-service:/opt/app
+      - /opt/app/node_modules
+    command: sh -c "npm run swagger-autogen && npx ts-node-dev --respawn --poll --files index.dev.ts"
 
   chat-service-db:
     container_name: chat-service-db
@@ -63,14 +67,16 @@ services:
   users-service:
     container_name: users-service
     build:
-      context: "."
-      dockerfile: "./users-service/Dockerfile"
+      context: "./users-service"
+      dockerfile: "Dockerfile"
     depends_on:
       - users-service-db
     ports:
       - "7101:7101"
     volumes:
       - ./users-service:/opt/app
+      - /opt/app/node_modules
+    command: npx ts-node-dev --respawn --poll --files index.dev.ts
 
   users-service-db:
     container_name: users-service-db
@@ -84,14 +90,16 @@ services:
   notification-service:
     container_name: notification-service
     build:
-      context: "."
-      dockerfile: "./notification-service/Dockerfile"
+      context: "./notification-service"
+      dockerfile: "Dockerfile"
     depends_on:
       - notification-service-db
     ports:
       - "7102:7102"
     volumes:
       - ./notification-service:/opt/app
+      - /opt/app/node_modules
+    command: npx ts-node-dev --respawn --poll --files index.dev.ts
 
   notification-service-db:
     container_name: notification-service-db

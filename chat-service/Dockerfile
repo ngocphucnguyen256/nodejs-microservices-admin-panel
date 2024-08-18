@@ -2,6 +2,12 @@ FROM node:14
 
 WORKDIR /opt/app
 
-RUN yarn
+COPY package*.json ./
 
-CMD yarn swagger-autogen && yarn watch
+RUN npm install
+
+COPY . .
+
+RUN npm install --only=development --silent
+
+CMD npm run swagger-autogen && npx ts-node-dev --respawn --poll --files index.dev.ts
